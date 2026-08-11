@@ -5,6 +5,7 @@ import { FiTrash, FiEdit, FiEye } from "react-icons/fi";
 import DataTable from "../components/DataTable";
 import AddCustomerModal from "../components/AddCustomerModal";
 import CustomerCardPage from "./CustomerCardsPage"
+import { FaIdCard } from "react-icons/fa";
 
 // Helpers
 const getExtraTotal = (items = []) =>
@@ -150,7 +151,7 @@ const Customer = () => {
                 rowsPerPage={5}
                 actions={[
                     {
-                        label: "Card",
+                        label: <FaIdCard />,
                         className: "bg-purple-500 hover:bg-purple-600 text-white cursor-pointer",
                         onClick: (row) => navigate(`/customers/${row.id}/card`),
                     },

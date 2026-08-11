@@ -72,7 +72,7 @@ const DataTable = ({
     const hasAlertColumn = data.some((row) => row.endMonth);
 
     return (
-        <div className="bg-white rounded-xl shadow border border-gray-200 p-4">
+        <div className="bg-white/10 backdrop-blur-md rounded-xl shadow border border-gray-200 p-2">
             {/* Search */}
             {searchKeys.length > 0 && (
                 <div className="mb-4">
@@ -84,15 +84,15 @@ const DataTable = ({
                             setSearch(e.target.value);
                             setCurrentPage(1);
                         }}
-                        className="w-full md:w-72 px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full md:w-72 px-4 py-2 border border-slate-400 rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
             )}
 
             {/* Table */}
             <div className="overflow-x-auto">
-                <table className="min-w-full table-fixed border-collapse">
-                    <thead className="bg-gray-100">
+                <table className="min-w-full  table-fixed border-collapse">
+                    <thead className="bg-gray-100 ">
                         <tr>
                             {columns.map((col) => (
                                 <th
@@ -124,7 +124,7 @@ const DataTable = ({
                                     {columns.map((col) => (
                                         <td
                                             key={col.accessor}
-                                            className="px-4 py-3 text-sm text-gray-700 truncate max-w-[220px] whitespace-nowrap"
+                                            className="px-4 py-3 text-sm text-gray-700 truncate max-w-55 whitespace-nowrap"
                                         >
                                             {col.render
                                                 ? col.render(row)
@@ -183,7 +183,7 @@ const DataTable = ({
             {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                     <p className="text-sm text-gray-600">
-                        Showing {start + 1} to {Math.min(start + rowsPerPage, filteredData.length)} of {filteredData.length}
+                        {start + 1} to {Math.min(start + rowsPerPage, filteredData.length)} of {filteredData.length}
                     </p>
 
                     <div className="flex gap-2">
