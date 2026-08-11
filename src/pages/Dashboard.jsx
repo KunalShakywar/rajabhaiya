@@ -6,6 +6,7 @@ import {
     FiDollarSign,
     FiTrendingUp,
     FiCreditCard,
+    FiCamera,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -27,6 +28,12 @@ export default function Dashboard() {
             icon: <FiUsers size={24} />,
             color: "bg-blue-500",
             path: "/customer",
+        },
+        {
+            title: "QR Scan",
+            icon: <FiCamera size={24} />,
+            color: "bg-blue-500",
+            path: "/entries",
         },
         {
             title: "Products",
@@ -104,7 +111,7 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="  p-3 sm:p-4  lg:p-6">
+        <div className="  p-3 sm:p-4  lg:p-6 pb-20 overflow-y-auto">
             {/* Header */}
             <div className="mb-5">
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
@@ -187,9 +194,6 @@ export default function Dashboard() {
 
                     <p className="text-lg sm:text-xl font-bold text-gray-800">
                         {stats.topCustomer}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Highest billing customer based on regular entries
                     </p>
                 </div>
 

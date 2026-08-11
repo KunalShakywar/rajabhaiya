@@ -7,6 +7,7 @@ import CustomerDetails from "./pages/CustomersDetails";
 import Products from "./pages/Products";
 import RegularEntries from "./pages/RegularEntries";
 import CustomerCardPage from "./pages/CustomerCardsPage";
+import EntriesPage from "./pages/EntriesPage";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
             path="/customers/:id/card"
             element={<CustomerCardPage />}
           />
+          <Route path="entries" element={<EntriesPage />} />
           <Route path="regularentries" element={<RegularEntries />} />
           <Route path="products" element={<Products />} />
           <Route path="customer" element={<Customer />} />

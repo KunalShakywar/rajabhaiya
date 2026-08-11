@@ -21,7 +21,7 @@ export default function Navbar() {
     return (
         <>
             {/* Desktop / Tablet Top Navbar */}
-            <nav className="hidden md:flex gap-3 p-4 bg-gray-200 shadow-sm sticky top-0 z-40">
+            <nav className="hidden md:flex gap-3 p-4 bg-white/10 backdrop-blur-md  sticky top-0 z-40">
                 <NavLink to="/" end className={navClass}>
                     <FiHome />
                     Dashboard
@@ -49,7 +49,7 @@ export default function Navbar() {
             </nav>
 
             {/* Mobile Bottom Navbar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-lg md:hidden">
+            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md  shadow-lg md:hidden ">
                 <div className="grid grid-cols-5 h-16">
                     <NavLink to="/" end className={mobileClass}>
                         <FiHome size={20} />
