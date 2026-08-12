@@ -83,9 +83,7 @@ export default function QRScanner({ onScan }) {
                     <div className="w-full h-72 flex flex-col items-center justify-center bg-gray-900 text-white">
                         <div className="text-5xl mb-3 text-white p-1 bg-green-500 rounded-full"><FiCheck /></div>
                         <p className="font-semibold">QR Detected</p>
-                        <p className="text-sm text-gray-300 mt-1">
-                            Scanner stopped automatically
-                        </p>
+
                     </div>
                 )}
             </div>

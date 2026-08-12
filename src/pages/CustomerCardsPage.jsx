@@ -11,24 +11,28 @@ export default function CustomerCardPage() {
 
     useEffect(() => {
         const fetchCustomer = async () => {
+            setLoading(true);
+
             const { data, error } = await supabase
                 .from("customers")
                 .select("*")
-                .eq("id", id)
-                .single();
+                .eq("id", Number(id))
+                .maybeSingle();
 
+            console.log("PARAM ID =", id);
             console.log("CARD DATA =", data);
 
             if (error) {
-                console.error(error);
-            } else {
-                setCustomer(data);
+                console.error("Supabase Error:", error);
             }
 
+            setCustomer(data || null);
             setLoading(false);
         };
 
-        fetchCustomer();
+        if (id) {
+            fetchCustomer();
+        }
     }, [id]);
 
     if (loading) {
@@ -36,11 +40,15 @@ export default function CustomerCardPage() {
     }
 
     if (!customer) {
-        return <div className="p-6 text-red-600">Customer not found</div>;
+        return (
+            <div className="p-6 text-red-600">
+                Customer not found
+            </div>
+        );
     }
 
     return (
-        <div className=" flex items-center justify-center">
+        <div className="flex items-center justify-center min-h-screen p-4">
             <CustomerCard customer={customer} />
         </div>
     );

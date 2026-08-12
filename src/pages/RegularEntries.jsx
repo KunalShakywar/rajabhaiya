@@ -175,18 +175,18 @@ export default function RegularEntries() {
                 actions={[
                     {
                         label: <FcViewDetails />,
-                        className: "bg-blue-500 hover:bg-blue-600",
+                        className: "bg-blue-500 hover:bg-blue-600 cursor-pointer",
                         onClick: (row) =>
                             openHistory(row.customerId, row.customerName),
                     },
                     {
                         label: <FiEdit />,
-                        className: "bg-yellow-500 hover:bg-yellow-600",
+                        className: "bg-yellow-500 hover:bg-yellow-600 cursor-pointer",
                         onClick: (row) => console.log("Edit:", row),
                     },
                     {
                         label: <FiTrash />,
-                        className: "bg-red-500 hover:bg-red-600",
+                        className: "bg-red-500 hover:bg-red-600 cursor-pointer",
                         onClick: (row) => handleDelete(row.id),
                     },
                 ]}
@@ -200,7 +200,7 @@ export default function RegularEntries() {
             />
             {/* Customer History Modal */}
             {historyOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs p-4">
                     <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl">
                         <div className="flex items-center justify-between border-b p-4">
                             <div>
@@ -210,7 +210,7 @@ export default function RegularEntries() {
 
                             <button
                                 onClick={() => setHistoryOpen(false)}
-                                className="text-gray-500 hover:text-black text-xl"
+                                className="text-red-500 hover:text-black text-xl cursor-pointer"
                             >
                                 ✕
                             </button>
@@ -224,7 +224,7 @@ export default function RegularEntries() {
                                     {historyEntries.map((item) => (
                                         <div
                                             key={item.id}
-                                            className="border rounded-lg p-4 bg-gray-50"
+                                            className="border border-slate-700 rounded-lg p-4 bg-slate-50"
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div className="font-semibold text-gray-800">
@@ -233,6 +233,7 @@ export default function RegularEntries() {
 
                                                 <div className="text-sm text-gray-500">
                                                     {new Date(item.created_at).toLocaleString("en-IN", {
+                                                        timeZone: "Asia/Kolkata",
                                                         dateStyle: "medium",
                                                         timeStyle: "short",
                                                     })}

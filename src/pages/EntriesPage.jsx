@@ -114,7 +114,10 @@ export default function EntriesPage() {
             .filter((p) => Number(p.qty) > 0)
             .map((p) => ({
                 entry_date: new Date().toISOString().split("T")[0],
-                customer_name: customer.name,
+
+                // customer_name hatao
+                customer_id: customer.id,
+
                 product_name: p.name,
                 qty: Number(p.qty),
                 unit: p.unit,
@@ -278,6 +281,7 @@ export default function EntriesPage() {
 
                                 <div className="text-xs text-gray-400 mt-1">
                                     {new Date(entry.created_at).toLocaleString("en-IN", {
+                                        timeZone: "Asia/Kolkata",
                                         dateStyle: "medium",
                                         timeStyle: "short",
                                     })}
