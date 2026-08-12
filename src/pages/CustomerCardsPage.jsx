@@ -18,10 +18,6 @@ export default function CustomerCardPage() {
                 .select("*")
                 .eq("id", Number(id))
                 .maybeSingle();
-
-            console.log("PARAM ID =", id);
-            console.log("CARD DATA =", data);
-
             if (error) {
                 console.error("Supabase Error:", error);
             }

@@ -31,7 +31,13 @@ export default function EntriesPage() {
     const loadEntries = async () => {
         const { data, error } = await supabase
             .from("regular_entries")
-            .select("*")
+            .select(`
+    *,
+    customers (
+      id,
+      name
+    )
+  `)
             .order("created_at", { ascending: false })
             .limit(20);
 
@@ -56,9 +62,9 @@ export default function EntriesPage() {
 
         try {
             const qrData = JSON.parse(value);
-            customerId = qrData.customerId;
+            customerId = Number(qrData.customerId);
         } catch (err) {
-            customerId = parseInt(value, 10);
+            customerId = Number(value);
         }
 
         if (!customerId || isNaN(customerId)) {
@@ -73,6 +79,7 @@ export default function EntriesPage() {
             .single();
 
         if (error || !data) {
+            console.error(error);
             alert("Customer not found");
             return;
         }
@@ -102,7 +109,10 @@ export default function EntriesPage() {
             )
         );
     };
-
+    const totalAmount = selectedProducts.reduce(
+        (sum, item) => sum + Number(item.qty) * Number(item.rate),
+        0
+    )
     // ---------------- SAVE ENTRIES ----------------
     const saveEntry = async () => {
         if (!customer || selectedProducts.length === 0) {
@@ -148,7 +158,47 @@ export default function EntriesPage() {
 
         loadEntries();
     };
+    // ---------------- DELETE ENTRY ----------------
+    const deleteEntry = async (id) => {
+        const confirmDelete = window.confirm("Kya aap is entry ko delete karna chahte ho?");
 
+        if (!confirmDelete) return;
+
+        const { error } = await supabase
+            .from("regular_entries")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            console.error(error);
+            alert("Delete failed");
+            return;
+        }
+
+        // UI refresh
+        loadEntries();
+    }
+    // Same customer ki entries ko group mai lana 
+    const groupedEntries = Object.values(
+        entries.reduce((acc, entry) => {
+            const key = entry.customer_id;
+
+            if (!acc[key]) {
+                acc[key] = {
+                    customer_name: entry.customers?.name,
+                    created_at: entry.created_at,
+                    total: 0,
+                    items: [],
+                };
+            }
+
+            acc[key].total += Number(entry.amount || 0);
+            acc[key].items.push(entry);
+
+            return acc;
+        }, {})
+    )
+    console.log(entries[0])
     // ---------------- UI ----------------
     return (
         <div>
@@ -184,7 +234,7 @@ export default function EntriesPage() {
                                     <button
                                         key={product.id}
                                         onClick={() => toggleProduct(product)}
-                                        className={`border rounded-xl p-4 text-left transition-all ${selected
+                                        className={`border-[0.5px] rounded-xl p-4 text-left transition-all ${selected
                                             ? "border-blue-600 bg-blue-50 shadow-sm"
                                             : "hover:border-blue-400 hover:bg-gray-50"
                                             }`}
@@ -243,9 +293,9 @@ export default function EntriesPage() {
 
                             <button
                                 onClick={saveEntry}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium text-lg transition-colors"
+                                className="w-full bg-blue-900 hover:bg-blue-500 text-white py-3 rounded-xl font-medium text-lg transition-colors"
                             >
-                                Save All Entries
+                                Save Entries <span className="text-green-400">(₹{totalAmount})</span>
                             </button>
                         </div>
                     )}
@@ -253,9 +303,9 @@ export default function EntriesPage() {
             )}
 
             {/* Recent Entries */}
-            <div>
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">
-                    Recent Entries
+            <div className="pb-20">
+                <h2 className="lg:text-2xl font-bold mb-4 text-gray-800">
+                    Recent Entries <span className="bg-blue-400 px-2 rounded-full">{entries.length}</span>
                 </h2>
 
                 <div className="space-y-3">
@@ -265,33 +315,63 @@ export default function EntriesPage() {
                         </div>
                     )}
 
-                    {entries.map((entry) => (
+                    {groupedEntries.map((group, index) => (
                         <div
-                            key={entry.id}
-                            className="border rounded-xl p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                            key={index}
+                            className="bg-green-100 border border-green-700 rounded-xl p-4 mb-4  shadow-sm"
                         >
-                            <div>
-                                <div className="font-semibold text-gray-800">
-                                    {entry.customer_name}
+                            <div className="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 className="font-bold text-lg text-gray-800">
+                                        {group.customer_name}
+                                    </h3>
+
+                                    <div className="text-xs text-gray-400">
+                                        {new Date(group.created_at).toLocaleString("en-IN", {
+                                            timeZone: "Asia/Kolkata",
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                        })}
+                                    </div>
                                 </div>
 
-                                <div className="text-sm text-gray-500">
-                                    {entry.product_name} • {entry.qty} {entry.unit}
-                                </div>
-
-                                <div className="text-xs text-gray-400 mt-1">
-                                    {new Date(entry.created_at).toLocaleString("en-IN", {
-                                        timeZone: "Asia/Kolkata",
-                                        dateStyle: "medium",
-                                        timeStyle: "short",
-                                    })}
+                                <div className="text-right">
+                                    <div className="text-sm text-gray-500">Total</div>
+                                    <div className="font-bold text-green-600 text-xl">
+                                        ₹{group.total.toFixed(2)}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="text-right">
-                                <div className="font-bold text-green-600 text-lg">
-                                    ₹{Number(entry.amount).toFixed(2)}
-                                </div>
+                            <div className="space-y-2 border-t pt-3">
+                                {group.items.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center justify-between text-sm rounded-lg"
+                                    >
+                                        <div>
+                                            <div className="text-gray-700 font-medium">
+                                                {item.product_name} • {item.qty} {item.unit}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                                ₹{item.rate}/{item.unit}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-semibold text-gray-800">
+                                                ₹{Number(item.amount).toFixed(2)}
+                                            </span>
+
+                                            <button
+                                                onClick={() => deleteEntry(item.id)}
+                                                className="text-red-600 hover:text-red-800 text-xs font-medium"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))}

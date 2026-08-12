@@ -7,7 +7,69 @@ const CustomerDetails = () => {
 
     const [customer, setCustomer] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [summary, setSummary] = useState({
+        day: 0,
+        week: 0,
+        month: 0,
+        year: 0,
+    });
 
+    const fetchSummary = async (customerId) => {
+        const { data, error } = await supabase
+            .from("regular_entries")
+            .select("customer_id, amount, created_at")
+            .eq("customer_id", customerId);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        console.log("Customer ID:", customerId);
+        console.log("Entries:", data);
+
+        const now = new Date();
+
+        let day = 0;
+        let week = 0;
+        let month = 0;
+        let year = 0;
+
+        data.forEach((item) => {
+            const d = new Date(item.created_at);
+            const amount = Number(item.amount || 0);
+
+            // Today
+            if (
+                d.getFullYear() === now.getFullYear() &&
+                d.getMonth() === now.getMonth() &&
+                d.getDate() === now.getDate()
+            ) {
+                day += amount;
+            }
+
+            // Last 7 days
+            const diffDays = (now - d) / (1000 * 60 * 60 * 24);
+            if (diffDays >= 0 && diffDays < 7) {
+                week += amount;
+            }
+
+            // This month
+            if (
+                d.getFullYear() === now.getFullYear() &&
+                d.getMonth() === now.getMonth()
+            ) {
+                month += amount;
+            }
+
+            // This year
+            if (d.getFullYear() === now.getFullYear()) {
+                year += amount;
+            }
+        });
+
+        setSummary({ day, week, month, year });
+    }
     useEffect(() => {
         const fetchCustomer = async () => {
             setLoading(true);
@@ -33,6 +95,8 @@ const CustomerDetails = () => {
                     qty: Number(data.qty ?? 0),
                     milkRate: Number(data.milk_rate ?? 0),
                 });
+
+                await fetchSummary(customerId);
             }
 
             setLoading(false);
@@ -42,6 +106,8 @@ const CustomerDetails = () => {
             fetchCustomer();
         }
     }, [id]);
+
+
 
     if (loading) {
         return <div className="p-6">Loading customer...</div>;
@@ -58,10 +124,10 @@ const CustomerDetails = () => {
     const milkAmount = customer.qty * customer.milkRate;
 
     return (
-        <div className=" mx-auto text-sm ">
+        <div className=" mx-auto text-sm pb-20">
             <h1 className="text-3xl font-bold mb-6">{customer.name}</h1>
 
-            <div className="bg-white rounded-xl border shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl  space-y-4">
                 <div>
                     <span className="font-semibold">Phone:</span>{" "}
                     {customer.phone || "N/A"}
@@ -77,25 +143,42 @@ const CustomerDetails = () => {
                     ₹{customer.milkRate}/L
                 </div>
 
-                <div>
-                    <span className="font-semibold">Current Qty:</span>{" "}
-                    {customer.qty} L
-                </div>
+
 
                 <div className="border-t pt-4">
-                    <p className="text-lg font-semibold text-green-700">
-                        Current Amount: ₹{milkAmount.toFixed(2)}
-                    </p>
+
+                </div>
+                <div className="grid grid-cols-2  md:grid-cols-4 gap-4 mt-6">
+                    <div className="bg-blue-50 shadow-md  rounded-xl p-4">
+                        <p className="text-sm text-gray-500">Today</p>
+                        <p className="text-xl font-bold text-blue-700">
+                            ₹{summary.day.toFixed(2)}
+                        </p>
+                    </div>
+
+                    <div className="bg-green-50 shadow-md rounded-xl p-4">
+                        <p className="text-sm text-gray-500">This Week</p>
+                        <p className="text-xl font-bold text-green-700">
+                            ₹{summary.week.toFixed(2)}
+                        </p>
+                    </div>
+
+                    <div className="bg-yellow-50 shadow-md rounded-xl p-4">
+                        <p className="text-sm text-gray-500">This Month</p>
+                        <p className="text-xl font-bold text-yellow-700">
+                            ₹{summary.month.toFixed(2)}
+                        </p>
+                    </div>
+
+                    <div className="bg-purple-50 shadow-md rounded-xl p-4">
+                        <p className="text-sm text-gray-500">This Year</p>
+                        <p className="text-xl font-bold text-purple-700">
+                            ₹{summary.year.toFixed(2)}
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="mt-8 bg-white rounded-xl border shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Yearly Records</h2>
-
-                <div className="text-sm text-gray-500">
-                    No yearly records available yet.
-                </div>
-            </div>
         </div>
     );
 };

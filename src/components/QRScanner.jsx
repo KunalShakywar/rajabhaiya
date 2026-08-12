@@ -55,13 +55,13 @@ export default function QRScanner({ onScan }) {
     };
 
     return (
-        <div className="max-w-md mx-auto p-4 bg-white rounded-2xl shadow-lg space-y-4">
+        <div className="max-w-md mx-auto  space-y-4">
             <h2 className="text-xl font-bold text-center text-gray-800">
                 QR Scanner
             </h2>
 
             <div
-                className={`relative overflow-hidden rounded-2xl border-4 transition-all duration-300 ${detected
+                className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${detected
                     ? "border-green-500 shadow-[0_0_25px_rgba(34,197,94,0.8)]"
                     : "border-blue-500 shadow-md"
                     }`}

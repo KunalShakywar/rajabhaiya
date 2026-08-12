@@ -41,4 +41,12 @@ export default defineConfig({
     https: true,
   },
 
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+
+
 })
