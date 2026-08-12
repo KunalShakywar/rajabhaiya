@@ -1,4 +1,3 @@
-import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiTrash, FiEdit, FiEye } from "react-icons/fi";
@@ -6,6 +5,7 @@ import DataTable from "../components/DataTable";
 import AddCustomerModal from "../components/AddCustomerModal";
 import CustomerCardPage from "./CustomerCardsPage"
 import { FaIdCard } from "react-icons/fa";
+import { useCustomers } from "../context/CustomerContext";
 
 // Helpers
 const getExtraTotal = (items = []) =>
@@ -52,84 +52,32 @@ const columns = [
 ];
 
 const Customer = () => {
-    const [customers, setCustomers] = useState([]);
+
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
-
-    // Fetch customers
-    const fetchCustomers = async () => {
-        const { data, error } = await supabase
-            .from("customers")
-            .select("*")
-            .order("id", { ascending: false });
-
-        if (error) {
-            console.error("Fetch error:", error);
-            return;
-        }
-
-        const formatted = data.map((item) => ({
-            id: item.id,
-            name: item.name,
-            phone: item.phone,
-            address: item.address,
-            qty: Number(item.qty),
-            milkRate: Number(item.milk_rate),
-            extraItems: [],
-        }));
-
-        setCustomers(formatted);
-    };
-
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
-
+    const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
     // Add customer
     const handleAddCustomer = async (customer) => {
-        const { data, error } = await supabase
-            .from("customers")
-            .insert([
-                {
-                    name: customer.name,
-                    phone: customer.phone,
-                    address: customer.address,
-                    qty: customer.qty,
-                    milk_rate: customer.milkRate,
-                },
-            ])
-            .select();
-
-        console.log("DATA =", data);
-        console.log("ERROR =", error);
-
-        if (error) {
-            alert(error.message);
-            return;
+        try {
+            await addCustomer(customer);
+            setOpen(false);
+        } catch (err) {
+            alert(err.message);
         }
-
-        await fetchCustomers();
-        setOpen(false);
     };
 
     // Delete customer
     const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Delete this customer?");
+        if (!window.confirm("Delete this customer?")) return;
 
-        if (!confirmDelete) return;
-
-        const { error } = await supabase
-            .from("customers")
-            .delete()
-            .eq("id", id);
-
-        if (error) {
-            console.error(error);
-            return;
+        try {
+            await deleteCustomer(id);
+        } catch (err) {
+            console.error(err);
         }
-
-        await fetchCustomers();
     };
+
+    if (loading) return <p>Loading customers...</p>;
 
     return (
         <>

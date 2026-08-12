@@ -49,6 +49,7 @@ export default function AddCustomerModal({ open, onClose, onSubmit }) {
             extraItemAmount: "",
         });
     };
+
     // Input Css
     const InputStyle = "w-full rounded-lg border border-slate-700 p-2"
     return (

@@ -1,5 +1,6 @@
 import QRCode from "react-qr-code";
 import { useState } from "react";
+import { ImCancelCircle } from "react-icons/im";
 
 export default function CustomerCard({ customer }) {
     const [showQR, setShowQR] = useState(false);
@@ -70,7 +71,7 @@ export default function CustomerCard({ customer }) {
                             />
                         </div>
 
-                        <p className="text-[10px] sm:text-[11px] text-gray-500 text-center max-w-[120px] leading-tight">
+                        <p className="text-[10px] sm:text-[11px] text-gray-500 text-center max-w-30 leading-tight">
                             Tap QR to enlarge
                         </p>
                     </div>
@@ -86,8 +87,8 @@ export default function CustomerCard({ customer }) {
                     </button>
                 </div>
                 {showQR && (
-                    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-3xl p-6 flex flex-col items-center gap-4 shadow-2xl">
+                    <div className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4">
+                        <div className="flex flex-col items-center gap-4">
                             <h3 className="text-lg font-semibold text-gray-800">
                                 Scan Customer QR
                             </h3>
@@ -102,9 +103,9 @@ export default function CustomerCard({ customer }) {
 
                             <button
                                 onClick={() => setShowQR(false)}
-                                className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl font-medium"
+                                className=" text-rose-200 bg-red-400   rounded-full font-medium"
                             >
-                                Close
+                                <ImCancelCircle size={24} />
                             </button>
                         </div>
                     </div>

@@ -10,12 +10,12 @@ const entryColumns = [
     { header: "Customer", accessor: "customerName" },
     { header: "Last Date", accessor: "date" },
     {
-        header: "Total Qty",
+        header: "Qty",
         accessor: "qty",
         render: (row) => `${row.qty} ${row.unit}`,
     },
     {
-        header: "Total Amount",
+        header: "Amount",
         accessor: "amount",
         render: (row) => `₹${row.amount}`,
     },
@@ -35,7 +35,13 @@ export default function RegularEntries() {
     const fetchEntries = async () => {
         const { data, error } = await supabase
             .from("regular_entries")
-            .select("*")
+            .select(`
+    *,
+    customers (
+      id,
+      name
+    )
+  `)
             .order("created_at", { ascending: false });
 
         if (error) {
@@ -47,11 +53,11 @@ export default function RegularEntries() {
         const grouped = {};
 
         data.forEach((item) => {
-            const name = item.customer_name;
-
+            const name = item.customers?.name || "Unknown";
             if (!grouped[name]) {
                 grouped[name] = {
                     id: item.id,
+                    customerId: item.customer_id,
                     date: item.entry_date,
                     customerName: name,
                     productName: item.product_name,
@@ -75,26 +81,21 @@ export default function RegularEntries() {
     }, []);
 
     // Save entry
-    const handleSave = async (newEntry) => {
-        const { error } = await supabase
+    const handleSave = async (rows) => {
+        console.log("Rows received:", rows);
+
+        const { data, error } = await supabase
             .from("regular_entries")
-            .insert([
-                {
-                    entry_date: newEntry.date,
-                    customer_name: newEntry.customerName,
-                    product_name: newEntry.productName,
-                    qty: Number(newEntry.qty),
-                    unit: newEntry.unit,
-                    rate: Number(newEntry.rate),
-                    amount: Number(newEntry.amount),
-                },
-            ]);
+            .insert(rows)
+            .select();
 
         if (error) {
             console.error(error);
-            alert("Entry save nahi hui");
+            alert(error.message);
             return;
-        }
+        };
+
+        console.log("Saved:", data);
 
         await fetchEntries();
         setIsModalOpen(false);
@@ -128,13 +129,13 @@ export default function RegularEntries() {
         }
     };
     // Fetch fucntion
-    const openHistory = async (customerName) => {
+    const openHistory = async (customerId, customerName) => {
         setHistoryCustomer(customerName);
 
         const { data, error } = await supabase
             .from("regular_entries")
             .select("*")
-            .eq("customer_name", customerName)
+            .eq("customer_id", customerId)
             .order("created_at", { ascending: false });
 
         if (error) {
@@ -158,7 +159,7 @@ export default function RegularEntries() {
                         setScannedCustomer(null);
                         setIsModalOpen(true);
                     }}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
+                    className="bg-green-600 text-sm lg:text-xl hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
                 >
                     + Add Entry
                 </button>
@@ -175,7 +176,8 @@ export default function RegularEntries() {
                     {
                         label: <FcViewDetails />,
                         className: "bg-blue-500 hover:bg-blue-600",
-                        onClick: (row) => openHistory(row.customerName),
+                        onClick: (row) =>
+                            openHistory(row.customerId, row.customerName),
                     },
                     {
                         label: <FiEdit />,

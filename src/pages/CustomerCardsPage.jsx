@@ -40,7 +40,7 @@ export default function CustomerCardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+        <div className=" flex items-center justify-center">
             <CustomerCard customer={customer} />
         </div>
     );

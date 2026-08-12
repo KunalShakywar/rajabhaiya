@@ -7,6 +7,7 @@ import {
     FiTrendingUp,
     FiCreditCard,
     FiCamera,
+    FiUser
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -24,6 +25,12 @@ export default function Dashboard() {
 
     const shortcuts = [
         {
+            title: "User",
+            icon: <FiUser size={24} />,
+            color: "bg-cyan-500",
+            path: "/account",
+        },
+        {
             title: "Customers",
             icon: <FiUsers size={24} />,
             color: "bg-blue-500",
@@ -32,7 +39,7 @@ export default function Dashboard() {
         {
             title: "QR Scan",
             icon: <FiCamera size={24} />,
-            color: "bg-blue-500",
+            color: "bg-slate-500",
             path: "/entries",
         },
         {
@@ -72,9 +79,21 @@ export default function Dashboard() {
                 .select("id");
 
             // Regular Entries
-            const { data: entries } = await supabase
+            const { data: entries, error: entriesError } = await supabase
                 .from("regular_entries")
-                .select("customer_name, amount, entry_date");
+                .select(`
+    customer_id,
+    amount,
+    entry_date,
+    customers (
+      name
+    )
+  `);
+
+            if (entriesError) {
+                console.error("Entries fetch error:", entriesError);
+                return;
+            }
 
             const today = new Date().toISOString().split("T")[0];
 
@@ -89,10 +108,11 @@ export default function Dashboard() {
 
             // Top customer analysis
             const customerTotals = {};
-
             (entries || []).forEach((e) => {
-                customerTotals[e.customer_name] =
-                    (customerTotals[e.customer_name] || 0) + Number(e.amount || 0);
+                const customerName = e.customers?.name || "Unknown";
+
+                customerTotals[customerName] =
+                    (customerTotals[customerName] || 0) + Number(e.amount || 0);
             });
 
             const topCustomer =
@@ -111,7 +131,7 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="  p-3 sm:p-4  lg:p-6 pb-20 overflow-y-auto">
+        <div className=" sm:p-4  lg:p-6 pb-20 overflow-y-auto">
             {/* Header */}
             <div className="mb-5">
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
@@ -129,7 +149,7 @@ export default function Dashboard() {
                         className="bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 p-4 sm:p-5 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
                     >
                         <div
-                            className={`${item.color} w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white shadow-md`}
+                            className={`${item.color} w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white shadow-md cursor-pointer`}
                         >
                             {item.icon}
                         </div>
