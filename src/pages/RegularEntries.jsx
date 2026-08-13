@@ -12,7 +12,7 @@ const entryColumns = [
     {
         header: "Qty",
         accessor: "qty",
-        render: (row) => `${row.qty} ${row.unit}`,
+        render: (row) => row.qty,
     },
     {
         header: "Amount",
@@ -54,6 +54,7 @@ export default function RegularEntries() {
 
         data.forEach((item) => {
             const name = item.customers?.name || "Unknown";
+
             if (!grouped[name]) {
                 grouped[name] = {
                     id: item.id,
@@ -61,18 +62,33 @@ export default function RegularEntries() {
                     date: item.entry_date,
                     customerName: name,
                     productName: item.product_name,
-                    qty: 0,
-                    unit: item.unit,
+
+                    // qty ko map me store karenge
+                    qtyMap: {},
+
                     amount: 0,
                     totalEntries: 0,
                 };
             }
 
-            grouped[name].qty += Number(item.qty || 0);
+            // unit ke hisaab se total karo
+            const unit = item.unit || "";
+
+            grouped[name].qtyMap[unit] =
+                (grouped[name].qtyMap[unit] || 0) + Number(item.qty || 0);
+
             grouped[name].amount += Number(item.amount || 0);
             grouped[name].totalEntries += 1;
         });
 
+        // qtyMap ko readable string me convert karo
+        Object.values(grouped).forEach((entry) => {
+            entry.qty = Object.entries(entry.qtyMap)
+                .map(([unit, qty]) => `${qty} ${unit}`)
+                .join(", ");
+
+            delete entry.qtyMap;
+        });
         setEntries(Object.values(grouped));
     };
 
@@ -200,14 +216,24 @@ export default function RegularEntries() {
             />
             {/* Customer History Modal */}
             {historyOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs px-3">
                     <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl">
                         <div className="flex items-center justify-between border-b p-4">
                             <div>
-                                <h2 className="text-xl font-bold">Customer History</h2>
+                                <h2 className=" text-sm lg:text-xl font-bold">History <span className="bg-blue-400 px-2 rounded-full">{historyEntries.length}</span></h2>
                                 <p className="text-sm text-gray-500">{historyCustomer}</p>
                             </div>
 
+                            <div className="text-sm lg:text-xl">
+                                Total Amount:
+                                <span className="font-bold px-2 text-green-700">
+                                    ₹
+                                    {historyEntries.reduce(
+                                        (sum, item) => sum + Number(item.amount || 0),
+                                        0
+                                    )}
+                                </span>
+                            </div>
                             <button
                                 onClick={() => setHistoryOpen(false)}
                                 className="text-red-500 hover:text-black text-xl cursor-pointer"
@@ -216,7 +242,7 @@ export default function RegularEntries() {
                             </button>
                         </div>
 
-                        <div className="p-4 max-h-[70vh] overflow-y-auto">
+                        <div className="p-4 max-h-[70vh] overflow-y-auto pb-20">
                             {historyEntries.length === 0 ? (
                                 <p className="text-gray-500">No history found.</p>
                             ) : (

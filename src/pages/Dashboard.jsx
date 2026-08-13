@@ -21,6 +21,7 @@ export default function Dashboard() {
         todayEntries: 0,
         todayCollection: 0,
         topCustomer: "-",
+        topCustomerAmount: 0,
     });
 
     const shortcuts = [
@@ -115,8 +116,12 @@ export default function Dashboard() {
                     (customerTotals[customerName] || 0) + Number(e.amount || 0);
             });
 
-            const topCustomer =
-                Object.entries(customerTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+            const topEntry = Object.entries(customerTotals).sort(
+                (a, b) => b[1] - a[1]
+            )[0];
+
+            const topCustomer = topEntry?.[0] || "-";
+            const topCustomerAmount = topEntry?.[1] || 0;
 
             setStats({
                 totalCustomers: customers?.length || 0,
@@ -124,6 +129,7 @@ export default function Dashboard() {
                 todayEntries: todayEntries.length,
                 todayCollection,
                 topCustomer,
+                topCustomerAmount,
             });
         } catch (err) {
             console.error("Dashboard error:", err);
@@ -211,10 +217,16 @@ export default function Dashboard() {
                         <FiTrendingUp className="text-orange-500" />
                         <h3 className="font-semibold text-gray-800">Top Customer</h3>
                     </div>
+                    <div className="flex flex-row justify-between">
 
-                    <p className="text-lg sm:text-xl font-bold text-gray-800">
-                        {stats.topCustomer}
-                    </p>
+                        <p className="text-lg sm:text-xl font-bold text-gray-800">
+                            {stats.topCustomer}
+                        </p>
+
+                        <p className="text-sm text-green-600 font-semibold mt-1">
+                            ₹{stats.topCustomerAmount.toFixed(2)}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">

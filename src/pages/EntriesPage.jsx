@@ -179,13 +179,15 @@ export default function EntriesPage() {
         loadEntries();
     }
     // Same customer ki entries ko group mai lana 
+    // Same customer + same date ki entries ko group karo
     const groupedEntries = Object.values(
         entries.reduce((acc, entry) => {
-            const key = entry.customer_id;
+            const key = `${entry.customer_id}-${entry.entry_date}`;
 
             if (!acc[key]) {
                 acc[key] = {
                     customer_name: entry.customers?.name,
+                    entry_date: entry.entry_date,
                     created_at: entry.created_at,
                     total: 0,
                     items: [],
@@ -197,7 +199,7 @@ export default function EntriesPage() {
 
             return acc;
         }, {})
-    )
+    );
     console.log(entries[0])
     // ---------------- UI ----------------
     return (
@@ -327,10 +329,9 @@ export default function EntriesPage() {
                                     </h3>
 
                                     <div className="text-xs text-gray-400">
-                                        {new Date(group.created_at).toLocaleString("en-IN", {
+                                        {new Date(group.entry_date).toLocaleDateString("en-IN", {
                                             timeZone: "Asia/Kolkata",
                                             dateStyle: "medium",
-                                            timeStyle: "short",
                                         })}
                                     </div>
                                 </div>
