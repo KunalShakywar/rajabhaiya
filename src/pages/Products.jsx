@@ -99,7 +99,7 @@ const Products = () => {
                         setEditProduct(null);
                         setIsModalOpen(true);
                     }}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm lg:text-xl"
+                    className="bg-green-600 border border-green-800  text-sm lg:text-xl hover:bg-green-700 text-white px-4 py-1 rounded-lg font-medium cursor-pointer"
                 >
                     + Add Product
                 </button>
@@ -113,12 +113,12 @@ const Products = () => {
                 actions={[
                     {
                         label: <FiEye />,
-                        className: "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer",
+                        className: "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer border border-blue-700",
                         onClick: (row) => navigate(`/products/${row.id}`),
                     },
                     {
                         label: <FiEdit />,
-                        className: "bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer",
+                        className: "bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer border border-yellow-700",
                         onClick: (row) => {
                             setEditProduct(row);
                             setIsModalOpen(true);
@@ -126,7 +126,7 @@ const Products = () => {
                     },
                     {
                         label: <FiTrash />,
-                        className: "bg-red-500 hover:bg-red-600 text-white cursor-pointer",
+                        className: "bg-red-500 hover:bg-red-600 text-white cursor-pointer border-l border-white",
                         onClick: (row) => handleDelete(row.id),
                     },
                 ]}

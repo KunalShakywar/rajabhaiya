@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 
 const DataTable = ({
     columns,
@@ -70,9 +71,10 @@ const DataTable = ({
     };
 
     const hasAlertColumn = data.some((row) => row.endMonth);
-
+    // prev and next css
+    const pigBtn = "px-4 py-2 text-sm rounded-lg border border-white dark:border-slate-700 bg-gray-100 dark:bg-gray-900 disabled:opacity-50 hover:bg-gray-200 cursor-pointer"
     return (
-        <div className="bg-white/10 backdrop-blur-md rounded-xl shadow border border-gray-200 p-2">
+        <div className=" dark:bg-gray-900 backdrop-blur-md rounded-xl shadow border border-white  dark:border-slate-700 ">
             {/* Search */}
             {searchKeys.length > 0 && (
                 <div className="mb-4">
@@ -84,20 +86,20 @@ const DataTable = ({
                             setSearch(e.target.value);
                             setCurrentPage(1);
                         }}
-                        className="w-full md:w-72 px-4 py-2 border border-slate-400 rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full md:w-72 px-4 py-2  border  dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-gray-400"
                     />
                 </div>
             )}
 
             {/* Table */}
             <div className="overflow-x-auto">
-                <table className="min-w-full  table-fixed border-collapse">
-                    <thead className="bg-gray-100 ">
+                <table className="min-w-full table-fixed border-collapse dark:bg-gray-900">
+                    <thead className="bg-gray-100 dark:bg-gray-700 ">
                         <tr>
                             {columns.map((col) => (
                                 <th
                                     key={col.accessor}
-                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-700"
+                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white"
                                 >
                                     {col.header}
                                 </th>
@@ -110,21 +112,21 @@ const DataTable = ({
                             )}
 
                             {actions.length > 0 && (
-                                <th className="w-32 px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                                <th className="w-32 px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-white">
                                     Actions
                                 </th>
                             )}
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-slate-300 dark:divide-slate-700">
                         {paginatedData.length > 0 ? (
                             paginatedData.map((row, index) => (
-                                <tr key={row.id || index} className="hover:bg-gray-50">
+                                <tr key={row.id || index} className="hover:bg-gray-50 hover:dark:bg-gray-50/10 dark:bg-gray-800">
                                     {columns.map((col) => (
                                         <td
                                             key={col.accessor}
-                                            className="px-4 py-3 text-sm text-gray-700 truncate max-w-55 whitespace-nowrap"
+                                            className="px-4 py-3 text-sm text-gray-700 dark:text-white truncate max-w-55 whitespace-nowrap"
                                         >
                                             {col.render
                                                 ? col.render(row)
@@ -182,19 +184,19 @@ const DataTable = ({
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 p-2">
                         {start + 1} to {Math.min(start + rowsPerPage, filteredData.length)} of {filteredData.length}
                     </p>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 p-2">
                         <button
                             onClick={() =>
                                 setCurrentPage((p) => Math.max(p - 1, 1))
                             }
                             disabled={currentPage === 1}
-                            className="px-4 py-2 text-sm rounded-lg border bg-gray-100 disabled:opacity-50 hover:bg-gray-200 cursor-pointer"
+                            className={pigBtn}
                         >
-                            Prev
+                            <FiArrowLeft />
                         </button>
 
                         <span className="px-3 py-2 text-sm">
@@ -206,9 +208,9 @@ const DataTable = ({
                                 setCurrentPage((p) => Math.min(p + 1, totalPages))
                             }
                             disabled={currentPage === totalPages}
-                            className="px-4 py-2 text-sm rounded-lg border bg-gray-100 disabled:opacity-50 hover:bg-gray-200 cursor-pointer"
+                            className={pigBtn}
                         >
-                            Next
+                            <FiArrowRight />
                         </button>
                     </div>
                 </div>

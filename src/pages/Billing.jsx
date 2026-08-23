@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import jsPDF from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { FaFilePdf, FaEye } from "react-icons/fa";
+import { FiEye, FiPhoneCall, FiUser } from "react-icons/fi";
 
 export default function ScannerPage() {
     const [customers, setCustomers] = useState([]);
@@ -166,32 +167,35 @@ export default function ScannerPage() {
                 {customers.map((customer) => (
                     <div
                         key={customer.id}
-                        className="bg-white border rounded-xl p-4 flex items-center justify-between"
+                        className="bg-white dark:bg-gray-900 border border-white dark:border-slate-700  rounded-xl p-4 flex items-center justify-between"
                     >
                         <div>
-                            <div className="font-semibold text-gray-800">
-                                {customer.name}
+                            <div className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white">
+                                <FiUser className="shrink-0" />
+                                <span>{customer.name}</span>
                             </div>
-                            <div className="text-sm text-gray-500">
-                                {customer.phone}
+
+                            <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                <FiPhoneCall className="shrink-0" />
+                                <span>{customer.phone}</span>
                             </div>
                         </div>
 
                         <div className="text-right">
-                            <div className="font-bold text-green-600">
+                            <div className="font-bold text-green-600 dark:text-green-400">
                                 ₹{customer.total.toFixed(2)}
                             </div>
                             <div className="flex  gap-2">
 
                                 <button
                                     onClick={() => openBill(customer)}
-                                    className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm"
+                                    className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-lg text-sm lg:text-xl border border-blue-800 cursor-pointer"
                                 >
-                                    <FaEye />
+                                    <FiEye />
                                 </button>
                                 <button
                                     onClick={() => downloadPDF(customer)}
-                                    className="mt-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm"
+                                    className="mt-2 bg-purple-600 hover:bg-purple-700 text-white px-2 py-2 rounded-lg text-sm lg:text-xl border border-purple-800 cursor-pointer"
                                 >
                                     <FaFilePdf />
                                 </button>
@@ -203,9 +207,9 @@ export default function ScannerPage() {
 
             {/* Bill Modal */}
             {selectedCustomer && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl ">
-                        <div className="flex items-center justify-between border-b p-4">
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 pb-25 z-50">
+                    <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-2xl shadow-xl ">
+                        <div className="flex items-center justify-between shadow-md p-4">
                             <div>
                                 <h2 className="text-xl font-bold">
                                     {selectedCustomer.name}
@@ -228,7 +232,7 @@ export default function ScannerPage() {
                             {billItems.map((item, index) => (
                                 <div
                                     key={item.id}
-                                    className=" shadow-md rounded-lg p-3 flex items-center justify-between gap-3"
+                                    className=" shadow-md border border-white dark:border-slate-700 rounded-lg p-3 flex items-center justify-between gap-3"
                                 >
                                     {/* Index Number */}
                                     <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700">
@@ -237,26 +241,26 @@ export default function ScannerPage() {
 
                                     {/* Product Info */}
                                     <div className="flex-1">
-                                        <div className="font-medium text-gray-800">
+                                        <div className="font-medium text-gray-800 dark:text-white">
                                             {item.product_name}
                                         </div>
 
-                                        <div className="text-sm text-gray-500">
+                                        <div className="text-sm text-gray-500 dark:text-white">
                                             {item.qty} {item.unit} × ₹{item.rate}
                                         </div>
                                     </div>
 
                                     {/* Amount */}
-                                    <div className="font-semibold text-green-700">
+                                    <div className="font-semibold text-green-700 dark:text-green-400">
                                         ₹{Number(item.amount).toFixed(2)}
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="border-t p-4 flex items-center justify-between">
+                        <div className="shadow-md p-4 flex items-center justify-between">
                             <span className="font-bold text-lg">Grand Total</span>
-                            <span className="font-bold text-xl text-green-700">
+                            <span className="font-bold text-xl text-green-700 dark:text-green-400">
                                 ₹{total.toFixed(2)}
                             </span>
                         </div>

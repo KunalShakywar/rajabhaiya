@@ -86,7 +86,7 @@ const Customer = () => {
 
                 <button
                     onClick={() => setOpen(true)}
-                    className="rounded-lg bg-green-600 px-4 py-2 text-white text-sm lg:text-xl hover:bg-green-700 cursor-pointer"
+                    className="bg-green-600 border border-green-800  text-sm lg:text-xl hover:bg-green-700 text-white px-4 py-1 rounded-lg font-medium cursor-pointer"
                 >
                     + Add New Customer
                 </button>
@@ -100,22 +100,22 @@ const Customer = () => {
                 actions={[
                     {
                         label: <FaIdCard />,
-                        className: "bg-purple-500 hover:bg-purple-600 text-white cursor-pointer",
+                        className: "bg-purple-500 hover:bg-purple-600 text-white cursor-pointer border border-purple-700",
                         onClick: (row) => navigate(`/customers/${row.id}/card`),
                     },
                     {
                         label: <FiEye size={18} />,
-                        className: "bg-blue-500 hover:bg-blue-600 cursor-pointer",
+                        className: "bg-blue-500 hover:bg-blue-600 cursor-pointer border border-blue-700",
                         onClick: (row) => navigate(`/customers/${row.id}`),
                     },
                     {
                         label: <FiEdit size={18} />,
-                        className: "bg-yellow-500 hover:bg-yellow-600 cursor-pointer",
+                        className: "bg-yellow-500 hover:bg-yellow-600 cursor-pointer border border-yellow-700",
                         onClick: (row) => console.log("Edit:", row),
                     },
                     {
                         label: <FiTrash size={18} />,
-                        className: "bg-red-500 hover:bg-red-600 cursor-pointer",
+                        className: "bg-red-500 hover:bg-red-700 cursor-pointer border border-yellow-700",
                         onClick: (row) => handleDelete(row.id),
                     },
                 ]}

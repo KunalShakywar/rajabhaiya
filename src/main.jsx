@@ -6,17 +6,20 @@ import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { CustomerProvider } from './context/CustomerContext.jsx'
 import { ProductProvider } from "./context/ProductContext";
+import { ThemeProvider } from "./pages/context/ThemeContext";
 
 registerSW({ immediate: true })
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <CustomerProvider>
-        <ProductProvider>
-          <App />
-        </ProductProvider>
-      </CustomerProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <CustomerProvider>
+          <ProductProvider>
+            <App />
+          </ProductProvider>
+        </CustomerProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </StrictMode>,
 )

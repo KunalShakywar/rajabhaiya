@@ -1,6 +1,7 @@
 import QRCode from "react-qr-code";
 import { useState } from "react";
 import { ImCancelCircle } from "react-icons/im";
+import { FiUser, FiPhoneCall, FiMapPin, FiCheck } from "react-icons/fi";
 
 export default function CustomerCard({ customer }) {
     const [showQR, setShowQR] = useState(false);
@@ -16,7 +17,7 @@ export default function CustomerCard({ customer }) {
     const firstLetter = customer.name?.charAt(0)?.toUpperCase() || "C";
     return (
         <div className="w-full flex justify-center sm:p-4 print:p-0 print:min-h-screen print:items-center print:justify-center">
-            <div className="w-full max-w-140  rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden print:shadow-none print:border-black">
+            <div className="w-full max-w-140  rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden print:shadow-none print:border-black">
                 {/* Header */}
                 <div className="bg-linear-to-r from-blue-600 to-green-800 text-white px-4 sm:px-6 py-3 sm:py-4">
                     <h2 className="text-lg sm:text-2xl font-bold tracking-wide">
@@ -35,23 +36,34 @@ export default function CustomerCard({ customer }) {
 
                         {/* Details */}
                         <div className="flex-1 space-y-1 sm:space-y-2 min-w-0">
-                            <div>
-                                <h3 className="text-sm sm:text-2xl font-bold text-gray-800 truncate">
-                                    {customer.name}
-                                </h3>
-                                <p className="text-[10px] sm:text-sm text-gray-500">
-                                    CID: SGD{customer.id}
-                                </p>
-                            </div>
+                            <div className="space-y-3">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <FiUser className="text-gray-600  dark:text-gray-300 flex-shrink-0" />
+                                        <h3 className="text-sm sm:text-2xl font-bold text-gray-800 dark:text-white truncate">
+                                            {customer.name}
+                                        </h3>
+                                    </div>
 
-                            <div className="space-y-1 text-[11px] sm:text-sm">
-                                <p className="break-all">
-                                    <span className="font-semibold text-gray-700">Phoen:</span> {customer.phone || "-"}
-                                </p>
+                                    <div className="flex items-center gap-2  text-[10px] sm:text-sm text-gray-500 dark:text-white">
+                                        <FiCheck className="flex-shrink-0" />
+                                        <span>CID: SGD{customer.id}</span>
+                                    </div>
+                                </div>
 
-                                <p className="leading-relaxed wrap-break-word line-clamp-2">
-                                    <span className="font-semibold text-gray-700">Address:</span> {customer.address || "No Address"}
-                                </p>
+                                <div className="space-y-2 text-[11px] sm:text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <FiPhoneCall className="text-gray-600 dark:text-white flex-shrink-0" />
+                                        <span className="text-gray-700 dark:text-white">{customer.phone || "-"}</span>
+                                    </div>
+
+                                    <div className="flex items-start gap-2 ">
+                                        <FiMapPin className="text-gray-600 dark:text-white mt-0.5 flex-shrink-0" />
+                                        <span className="text-gray-700 break-words dark:text-white">
+                                            {customer.address || "No Address"}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -78,7 +90,7 @@ export default function CustomerCard({ customer }) {
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-100 px-3 sm:px-6 py-3 sm:py-4 bg-gray-50">
+                <div className="  dark:bg-gray-900 px-3 sm:px-6 py-3 sm:py-4 bg-gray-50">
                     <button
                         onClick={() => window.print()}
                         className="w-full bg-green-600 hover:bg-green-700 text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium transition-colors print:hidden"

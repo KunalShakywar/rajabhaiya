@@ -127,7 +127,7 @@ const CustomerDetails = () => {
         <div className=" mx-auto text-sm pb-20">
             <h1 className="text-3xl font-bold mb-6">{customer.name}</h1>
 
-            <div className="bg-white rounded-xl  space-y-4">
+            <div className=" rounded-xl  space-y-4">
                 <div>
                     <span className="font-semibold">Phone:</span>{" "}
                     {customer.phone || "N/A"}
@@ -145,34 +145,34 @@ const CustomerDetails = () => {
 
 
 
-                <div className="border-t pt-4">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
 
                 </div>
                 <div className="grid grid-cols-2  md:grid-cols-4 gap-4 mt-6">
-                    <div className="bg-blue-50 shadow-md  rounded-xl p-4">
-                        <p className="text-sm text-gray-500">Today</p>
-                        <p className="text-xl font-bold text-blue-700">
+                    <div className="bg-blue-50 dark:bg-blue-900/10  border border-white dark:border-slate-700 shadow-md  rounded-xl p-4">
+                        <p className="text-sm text-gray-500 dark:text-white">Today</p>
+                        <p className="text-xl font-bold text-blue-700 dark:text-blue-400">
                             ₹{summary.day.toFixed(2)}
                         </p>
                     </div>
 
-                    <div className="bg-green-50 shadow-md rounded-xl p-4">
-                        <p className="text-sm text-gray-500">This Week</p>
-                        <p className="text-xl font-bold text-green-700">
+                    <div className="bg-green-50 dark:bg-green-900/10 border border-white dark:border-slate-700 shadow-md rounded-xl p-4">
+                        <p className="text-sm text-gray-500 dark:text-white">This Week</p>
+                        <p className="text-xl font-bold text-green-700 dark:text-green-400">
                             ₹{summary.week.toFixed(2)}
                         </p>
                     </div>
 
-                    <div className="bg-yellow-50 shadow-md rounded-xl p-4">
-                        <p className="text-sm text-gray-500">This Month</p>
-                        <p className="text-xl font-bold text-yellow-700">
+                    <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-white dark:border-slate-700 shadow-md rounded-xl p-4">
+                        <p className="text-sm text-gray-500 dark:text-white" >This Month</p>
+                        <p className="text-xl font-bold text-yellow-700 dark:text-yellow-400">
                             ₹{summary.month.toFixed(2)}
                         </p>
                     </div>
 
-                    <div className="bg-purple-50 shadow-md rounded-xl p-4">
-                        <p className="text-sm text-gray-500">This Year</p>
-                        <p className="text-xl font-bold text-purple-700">
+                    <div className="bg-purple-50 dark:bg-purple-900/10 border border-white dark:border-slate-700 shadow-md rounded-xl p-4">
+                        <p className="text-sm text-gray-500 dark:text-white">This Year</p>
+                        <p className="text-xl font-bold text-purple-700 dark:text-purple-400">
                             ₹{summary.year.toFixed(2)}
                         </p>
                     </div>

@@ -29,10 +29,11 @@ const ProductModal = ({ isOpen, onClose, onSave, editData }) => {
     };
 
     if (!isOpen) return null;
-
+    // css
+    const selectInput = "w-full border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2";
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+        <div className="fixed inset-0 bg-black/40  flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-900 border border-white dark:border-slate-700 rounded-2xl shadow-xl w-full max-w-md p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">
                         {editData ? "Edit Product" : "Add Product"}
@@ -57,7 +58,7 @@ const ProductModal = ({ isOpen, onClose, onSave, editData }) => {
                             onChange={(e) =>
                                 setForm({ ...form, name: e.target.value })
                             }
-                            className="w-full border rounded-lg px-3 py-2"
+                            className={selectInput}
                             placeholder="Enter product name"
                             required
                         />
@@ -70,11 +71,11 @@ const ProductModal = ({ isOpen, onClose, onSave, editData }) => {
                             onChange={(e) =>
                                 setForm({ ...form, unit: e.target.value })
                             }
-                            className="w-full border rounded-lg px-3 py-2"
+                            className={selectInput}
                         >
-                            <option value="L">Litre (L)</option>
-                            <option value="Kg">Kilogram (Kg)</option>
-                            <option value="Piece">Piece</option>
+                            <option className="dark:bg-gray-500" value="L">Litre (L)</option>
+                            <option className="dark:bg-gray-500" value="Kg">Kilogram (Kg)</option>
+                            <option className="dark:bg-gray-500" value="Piece">Piece</option>
                         </select>
                     </div>
 
@@ -89,7 +90,7 @@ const ProductModal = ({ isOpen, onClose, onSave, editData }) => {
                             onChange={(e) =>
                                 setForm({ ...form, rate: e.target.value })
                             }
-                            className="w-full border rounded-lg px-3 py-2"
+                            className={selectInput}
                             placeholder="Enter rate"
                             required
                         />

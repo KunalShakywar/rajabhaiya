@@ -18,33 +18,52 @@ export default function QRScanner({ onScan }) {
         const codeReader = new BrowserQRCodeReader();
         readerRef.current = codeReader;
 
-        codeReader
-            .decodeFromVideoDevice(undefined, videoRef.current, (res) => {
-                if (!res) return;
+        const startScanner = async () => {
+            try {
+                // Camera permission
+                await navigator.mediaDevices.getUserMedia({ video: true });
 
-                const text = res.getText();
+                // All video devices
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameras = devices.filter((d) => d.kind === "videoinput");
 
-                if (text !== result) {
-                    setResult(text);
-                    setDetected(true);
-
-                    console.log("QR Scanned:", text);
-
-                    // Parent ko data bhejo
-                    onScan?.(text);
-
-                    // Camera stop karo
-                    codeReader.reset();
-                    setScannerActive(false);
+                if (cameras.length === 0) {
+                    setError("No camera found");
+                    return;
                 }
-            })
-            .catch((err) => {
+
+                // Back camera prefer
+                const camera =
+                    cameras.find((c) =>
+                        c.label.toLowerCase().includes("back")
+                    ) || cameras[0];
+
+                codeReader.decodeFromVideoDevice(
+                    camera.deviceId,
+                    videoRef.current,
+                    (res) => {
+                        if (!res) return;
+
+                        const text = res.getText();
+
+                        setResult(text);
+                        setDetected(true);
+                        onScan?.(text);
+
+                        codeReader.reset();
+                        setScannerActive(false);
+                    }
+                );
+            } catch (err) {
                 console.error(err);
                 setError(err.message);
-            });
+            }
+        };
+
+        startScanner();
 
         return () => codeReader.reset();
-    }, [scannerActive, onScan, result]);
+    }, [scannerActive, onScan]);
 
     // Dobara scan karne ke liye
     const startAgain = () => {
@@ -56,13 +75,10 @@ export default function QRScanner({ onScan }) {
 
     return (
         <div className="max-w-md mx-auto  space-y-4">
-            <h2 className="text-xl font-bold text-center text-gray-800">
-                QR Scanner
-            </h2>
 
             <div
                 className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${detected
-                    ? "border-green-500 shadow-[0_0_25px_rgba(34,197,94,0.8)]"
+                    ? " border-green-500 shadow-[0_0_25px_rgba(34,197,94,0.8)]"
                     : "border-blue-500 shadow-md"
                     }`}
             >
@@ -77,7 +93,7 @@ export default function QRScanner({ onScan }) {
                         />
 
                         {/* Scanner line */}
-                        <div className="absolute left-0 w-full h-1 bg-blue-400 animate-[scan_2s_linear_infinite]"></div>
+                        <div className="absolute left-0 w-full h-[0.5px]  bg-blue-400 animate-[scan_2s_linear_infinite]"></div>
                     </>
                 ) : (
                     <div className="w-full h-72 flex flex-col items-center justify-center bg-gray-900 text-white">

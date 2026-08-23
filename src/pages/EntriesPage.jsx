@@ -8,6 +8,9 @@ export default function EntriesPage() {
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [entries, setEntries] = useState([]);
     const [lastScan, setLastScan] = useState("");
+    const today = new Date().toISOString().split("T")[0];
+
+    const [selectedDate, setSelectedDate] = useState(today);
 
     // ---------------- LOAD DATA ----------------
     useEffect(() => {
@@ -28,25 +31,21 @@ export default function EntriesPage() {
         }
     };
 
-    const loadEntries = async () => {
+    const loadEntries = async (date = selectedDate) => {
         const { data, error } = await supabase
             .from("regular_entries")
             .select(`
-    *,
-    customers (
-      id,
-      name
-    )
-  `)
-            .order("created_at", { ascending: false })
-            .limit(20);
+      *,
+      customers(id, name)
+    `)
+            .eq("entry_date", date)
+            .order("created_at", { ascending: false });
 
-        if (error) {
-            console.error(error);
-        } else {
-            setEntries(data || []);
-        }
+        if (!error) setEntries(data || []);
     };
+    useEffect(() => {
+        loadEntries(selectedDate);
+    }, [selectedDate]);
 
     // ---------------- QR SCAN ----------------
     const handleScan = async (value) => {
@@ -214,19 +213,19 @@ export default function EntriesPage() {
 
             {/* Customer + Product Selection */}
             {customer && (
-                <div className="border rounded-2xl p-5 bg-white shadow-sm space-y-5">
+                <div className="border border-white rounded-2xl p-5 bg-white  dark:bg-gray-900 dark:border-slate-700 shadow-sm space-y-5">
                     <div>
-                        <h2 className="text-2xl font-bold text-blue-700">
+                        <h2 className="text-2xl font-bold dark:text-white" >
                             {customer.name}
                         </h2>
-                        <p className="text-sm text-gray-500">{customer.phone}</p>
+                        <p className="text-sm text-gray-500 dark:text-white">{customer.phone}</p>
                         <p className="text-sm text-gray-400">{customer.address}</p>
                     </div>
 
                     <div>
                         <h3 className="font-semibold mb-3">Select Products</h3>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 ">
                             {products.map((product) => {
                                 const selected = selectedProducts.some(
                                     (p) => p.id === product.id
@@ -237,14 +236,14 @@ export default function EntriesPage() {
                                         key={product.id}
                                         onClick={() => toggleProduct(product)}
                                         className={`border-[0.5px] rounded-xl p-4 text-left transition-all ${selected
-                                            ? "border-blue-600 bg-blue-50 shadow-sm"
+                                            ? "border-blue-600 bg-blue-200 dark:bg-blue-500/10 shadow-sm"
                                             : "hover:border-blue-400 hover:bg-gray-50"
                                             }`}
                                     >
-                                        <div className="font-semibold text-gray-800">
+                                        <div className="font-semibold text-gray-800 dark:text-white">
                                             {product.name}
                                         </div>
-                                        <div className="text-sm text-gray-500 mt-1">
+                                        <div className="text-sm text-gray-500 dark:text-gray-200 mt-1">
                                             ₹{product.rate}/{product.unit}
                                         </div>
                                     </button>
@@ -255,20 +254,20 @@ export default function EntriesPage() {
 
                     {/* Quantity Inputs */}
                     {selectedProducts.length > 0 && (
-                        <div className="space-y-4 border-t pt-5">
+                        <div className="space-y-4 border-t border-white dark:border-slate-700 pt-5">
                             <h3 className="font-semibold">Enter Quantities</h3>
 
                             {selectedProducts.map((product) => (
                                 <div
                                     key={product.id}
-                                    className="border rounded-xl p-4 space-y-3 bg-gray-50"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 bg-blue-50 dark:bg-gray-900"
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="font-medium text-lg text-gray-800">
+                                        <div className="font-medium text-lg text-gray-800 dark:text-white">
                                             {product.name}
                                         </div>
 
-                                        <div className="text-sm text-gray-500">
+                                        <div className="text-sm text-gray-500 dark:text-gray-200">
                                             ₹{product.rate}/{product.unit}
                                         </div>
                                     </div>
@@ -281,7 +280,7 @@ export default function EntriesPage() {
                                         onChange={(e) =>
                                             updateQty(product.id, e.target.value)
                                         }
-                                        className="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
                                     />
 
                                     <div className="text-right text-green-600 font-bold">
@@ -305,10 +304,20 @@ export default function EntriesPage() {
             )}
 
             {/* Recent Entries */}
-            <div className="pb-20">
-                <h2 className="lg:text-2xl font-bold mb-4 text-gray-800">
-                    Recent Entries <span className="bg-blue-400 px-2 rounded-full">{entries.length}</span>
-                </h2>
+            <div className="pb-20 mt-4">
+                <div className="flex items-center justify-between mb-4">
+
+                    <h2 className="lg:text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+                        Recent Entries <span className="bg-blue-400 px-2 rounded-full">{entries.length}</span>
+                    </h2>
+
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="border border-white dark:border-slate-700 rounded-lg px-3 py-2"
+                    />
+                </div>
 
                 <div className="space-y-3">
                     {entries.length === 0 && (
@@ -320,11 +329,11 @@ export default function EntriesPage() {
                     {groupedEntries.map((group, index) => (
                         <div
                             key={index}
-                            className="bg-green-100 border border-green-700 rounded-xl p-4 mb-4  shadow-sm"
+                            className="bg-green-100 dark:bg-green-900/10 border dark:border-slate-700 rounded-xl p-4 mb-4  shadow-sm"
                         >
                             <div className="flex items-center justify-between mb-3">
                                 <div>
-                                    <h3 className="font-bold text-lg text-gray-800">
+                                    <h3 className="font-bold text-lg text-gray-800 dark:text-white">
                                         {group.customer_name}
                                     </h3>
 
@@ -344,23 +353,23 @@ export default function EntriesPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-2 border-t pt-3">
+                            <div className="space-y-2 border-t dark:border-slate-700 pt-3">
                                 {group.items.map((item) => (
                                     <div
                                         key={item.id}
                                         className="flex items-center justify-between text-sm rounded-lg"
                                     >
                                         <div>
-                                            <div className="text-gray-700 font-medium">
+                                            <div className="text-gray-700 dark:text-white font-medium">
                                                 {item.product_name} • {item.qty} {item.unit}
                                             </div>
-                                            <div className="text-xs text-gray-500">
+                                            <div className="text-xs text-gray-500 dark:text-white">
                                                 ₹{item.rate}/{item.unit}
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-3">
-                                            <span className="font-semibold text-gray-800">
+                                            <span className="font-semibold text-yellow-800 dark:text-yellow-400">
                                                 ₹{Number(item.amount).toFixed(2)}
                                             </span>
 

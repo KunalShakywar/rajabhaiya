@@ -175,7 +175,7 @@ export default function RegularEntries() {
                         setScannedCustomer(null);
                         setIsModalOpen(true);
                     }}
-                    className="bg-green-600 text-sm lg:text-xl hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
+                    className="bg-green-600 border border-green-800  text-sm lg:text-xl hover:bg-green-700 text-white px-4 py-1 rounded-lg font-medium cursor-pointer"
                 >
                     + Add Entry
                 </button>
@@ -191,18 +191,18 @@ export default function RegularEntries() {
                 actions={[
                     {
                         label: <FcViewDetails />,
-                        className: "bg-blue-500 hover:bg-blue-600 cursor-pointer",
+                        className: "bg-blue-500 hover:bg-blue-600 cursor-pointer border border-blue-700",
                         onClick: (row) =>
                             openHistory(row.customerId, row.customerName),
                     },
                     {
                         label: <FiEdit />,
-                        className: "bg-yellow-500 hover:bg-yellow-600 cursor-pointer",
+                        className: "bg-yellow-500 hover:bg-yellow-600 cursor-pointer border border-yellow-700",
                         onClick: (row) => console.log("Edit:", row),
                     },
                     {
                         label: <FiTrash />,
-                        className: "bg-red-500 hover:bg-red-600 cursor-pointer",
+                        className: "bg-red-500 hover:bg-red-700 cursor-pointer border border-red-700",
                         onClick: (row) => handleDelete(row.id),
                     },
                 ]}
@@ -217,8 +217,8 @@ export default function RegularEntries() {
             {/* Customer History Modal */}
             {historyOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs px-3">
-                    <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl">
-                        <div className="flex items-center justify-between border-b p-4">
+                    <div className="bg-white dark:bg-gray-900 border border-white dark:border-slate-700 w-full max-w-2xl rounded-xl shadow-xl">
+                        <div className="flex items-center justify-between shadow-md p-4">
                             <div>
                                 <h2 className=" text-sm lg:text-xl font-bold">History <span className="bg-blue-400 px-2 rounded-full">{historyEntries.length}</span></h2>
                                 <p className="text-sm text-gray-500">{historyCustomer}</p>
@@ -250,10 +250,10 @@ export default function RegularEntries() {
                                     {historyEntries.map((item) => (
                                         <div
                                             key={item.id}
-                                            className="border border-slate-700 rounded-lg p-4 bg-slate-50"
+                                            className="border border-slate-300 dark:border-slate-700 rounded-lg p-4"
                                         >
                                             <div className="flex items-center justify-between">
-                                                <div className="font-semibold text-gray-800">
+                                                <div className="font-semibold text-gray-800 dark:text-white">
                                                     {item.product_name}
                                                 </div>
 
@@ -277,7 +277,7 @@ export default function RegularEntries() {
                                                     ₹{item.rate}/{item.unit}
                                                 </div>
 
-                                                <div className="col-span-2 text-green-700 font-semibold">
+                                                <div className="col-span-2 text-green-700 dark:text-green-400 font-semibold">
                                                     Amount: ₹{item.amount}
                                                 </div>
                                             </div>

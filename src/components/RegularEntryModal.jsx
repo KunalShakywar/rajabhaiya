@@ -107,18 +107,20 @@ export default function RegularEntryModal({
 
         onClose();
     };
+
+    const selInput = "w-full  rounded-lg border border-white dark:border-slate-700 px-3 py-2"
     return (
         <div className="fixed inset-0 z-50 bg-black/50 p-2 sm:p-4">
-            <div className="mx-auto flex h-full max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="mx-auto flex h-full max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-white dark:border-slate-700 shadow-2xl">
 
                 {/* Header */}
-                <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6 flex-shrink-0">
+                <div className="flex items-center justify-between shadow-md px-4 py-3 sm:px-6 flex-shrink-0">
                     <h2 className="text-lg sm:text-xl font-bold">Add Regular Entry</h2>
 
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-2xl leading-none text-gray-500 hover:text-gray-700"
+                        className="text-2xl leading-none text-red-500 hover:text-gray-700 cursor-pointer"
                     >
                         ×
                     </button>
@@ -137,7 +139,7 @@ export default function RegularEntryModal({
                                 onChange={(e) =>
                                     setForm({ ...form, date: e.target.value })
                                 }
-                                className="w-full rounded-lg border px-3 py-2"
+                                className={selInput}
                                 required
                             />
                         </div>
@@ -150,12 +152,12 @@ export default function RegularEntryModal({
                                 onChange={(e) =>
                                     setForm({ ...form, customerId: e.target.value })
                                 }
-                                className="w-full rounded-lg border px-3 py-2"
+                                className={selInput}
                                 required
                             >
-                                <option value="">Select Customer</option>
+                                <option className="dark:bg-gray-800" value="">Select Customer</option>
                                 {customers.map((c) => (
-                                    <option key={c.id} value={c.id}>
+                                    <option className="dark:bg-gray-800" key={c.id} value={c.id}>
                                         {c.name}
                                     </option>
                                 ))}
@@ -165,19 +167,19 @@ export default function RegularEntryModal({
                         {/* Product rows */}
                         <div className="space-y-4">
                             {items.map((item, index) => (
-                                <div key={index} className="rounded-xl border bg-gray-50 p-4 space-y-3">
+                                <div key={index} className="rounded-xl border border-white bg-white dark:bg-gray-900 dark:border-slate-700 p-4 space-y-3">
                                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                                         <select
                                             value={item.productId}
                                             onChange={(e) =>
                                                 handleProductChange(index, e.target.value)
                                             }
-                                            className="w-full rounded-lg border px-3 py-2"
+                                            className={selInput}
                                             required
                                         >
-                                            <option value="">Select Product</option>
+                                            <option className="dark:bg-gray-800" value="">Select Product</option>
                                             {products.map((p) => (
-                                                <option key={p.id} value={p.id}>
+                                                <option className="dark:bg-gray-800 cursor-pointer" key={p.id} value={p.id}>
                                                     {p.name}
                                                 </option>
                                             ))}
@@ -190,7 +192,7 @@ export default function RegularEntryModal({
                                             onChange={(e) =>
                                                 updateItem(index, "qty", e.target.value)
                                             }
-                                            className="w-full rounded-lg border px-3 py-2"
+                                            className={selInput}
                                         />
 
                                         <input
@@ -199,12 +201,12 @@ export default function RegularEntryModal({
                                             onChange={(e) =>
                                                 updateItem(index, "rate", e.target.value)
                                             }
-                                            className="w-full rounded-lg border px-3 py-2"
+                                            className={selInput}
                                         />
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        <p className="font-medium text-green-600">
+                                        <p className="font-medium text-green-600 dark:text-green-400">
                                             Amount: ₹{Number(item.qty) * Number(item.rate)}
                                         </p>
 
@@ -225,24 +227,24 @@ export default function RegularEntryModal({
                         <button
                             type="button"
                             onClick={addItem}
-                            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 cursor-pointer"
                         >
                             + Add Product
                         </button>
 
-                        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-                            <p className="text-sm text-gray-600">Grand Total</p>
-                            <p className="text-2xl font-bold text-green-600">₹{totalAmount}</p>
+                        <div className="rounded-xl border border-green-200 dark:border-slate-700 bg-green-50 dark:bg-green-900/10 p-4">
+                            <p className="text-sm text-gray-600 dark:text-white">Grand Total</p>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400" >₹{totalAmount}</p>
                         </div>
                     </form>
                 </div>
 
                 {/* Fixed Footer */}
-                <div className="flex justify-end gap-3 border-t bg-white px-4 py-3 sm:px-6 shrink-0">
+                <div className="flex justify-end gap-3  px-4 py-3 sm:px-6 shrink-0">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 cursor-pointer"
                     >
                         Cancel
                     </button>
@@ -250,7 +252,7 @@ export default function RegularEntryModal({
                     <button
                         type="submit"
                         form="regular-entry-form"
-                        className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                        className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 cursor-pointer"
                     >
                         Save Entry
                     </button>
