@@ -6,7 +6,11 @@ import {
     FiUser,
     FiHome,
     FiUserPlus,
+    FiPhone,
+    FiMapPin,
+    FiCreditCard,
 } from "react-icons/fi";
+import { supabase } from "../lib/supabase"
 
 import { useAuth } from "../context/AuthContext";
 
@@ -17,9 +21,15 @@ export default function Signup() {
     const [form, setForm] = useState({
         ownerName: "",
         dairyName: "",
+        phone: "",
+        address: "",
+        gstNo: "",
+        upiId: "",
         email: "",
         password: "",
         confirmPassword: "",
+        role: "owner",
+        user_id: ""
     });
 
     const [error, setError] = useState("");
@@ -33,33 +43,54 @@ export default function Signup() {
         e.preventDefault();
 
         if (form.password !== form.confirmPassword) {
-            setError("Passwords do not match");
-            return;
+            return setError("Passwords do not match");
         }
 
         setLoading(true);
         setError("");
 
-        const { error } = await register(form.email, form.password);
+        const { data, error } = await register(form.email, form.password);
+
+        if (error) {
+            setLoading(false);
+            return setError(error.message);
+        }
+        if (!data.session) {
+            return setError("Please verify your email before creating profile.");
+        }
+        const user = data.user;
+        const { error: profileError } = await supabase
+            .from("dairy_profile")
+            .insert({
+                name: form.dairyName,
+                owner: form.ownerName,
+                phone: form.phone,
+                address: form.address,
+                email: form.email,
+                gst_no: form.gstNo,
+                upi_id: form.upiId,
+                user_id: user.id,
+                logo_url: "",
+
+            });
 
         setLoading(false);
 
-        if (error) {
-            setError(error.message);
-            return;
+        if (profileError) {
+            return setError(profileError.message);
         }
 
-        alert("Account created successfully");
+        alert("Dairy account created successfully");
         navigate("/login");
     };
 
     return (
         <div
-            className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat p-4"
+            className="relative  flex items-center justify-center bg-cover bg-center bg-no-repeat p-4"
             style={{
                 backgroundImage: `url(${window.innerWidth < 640
-                        ? "https://picsum.photos/720/1280?blur=2"
-                        : "https://picsum.photos/1920/1080?blur=2"
+                    ? "https://picsum.photos/720/1280?blur=2"
+                    : "https://picsum.photos/1920/1080?blur=2"
                     })`,
             }}
         >
@@ -73,7 +104,7 @@ export default function Signup() {
                 <div className="flex flex-col items-center mb-6">
 
                     <h1 className="text-2xl font-bold text-white text-center">
-                        Shri Ganesh Dairy
+                        Create Your Dairy Account
                     </h1>
 
                 </div>
@@ -96,7 +127,7 @@ export default function Signup() {
                             placeholder="Owner Name"
                             value={form.ownerName}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             required
                         />
                     </div>
@@ -110,8 +141,62 @@ export default function Signup() {
                             placeholder="Dairy Name"
                             value={form.dairyName}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             required
+                        />
+                    </div>
+
+                    {/* Phone */}
+                    <div className="relative">
+                        <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                        <input
+                            type="tel"
+                            name="phone"
+                            placeholder="Phone Number"
+                            value={form.phone}
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Address */}
+                    <div className="relative">
+                        <FiMapPin className="absolute left-3 top-4 text-gray-500" />
+                        <textarea
+                            name="address"
+                            placeholder="Dairy Address"
+                            value={form.address}
+                            onChange={handleChange}
+                            rows={3}
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 resize-none text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                            required
+                        />
+                    </div>
+
+                    {/* GST Number */}
+                    <div className="relative">
+                        <FiCreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                        <input
+                            type="text"
+                            name="gstNo"
+                            placeholder="GST Number (Optional)"
+                            value={form.gstNo}
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        />
+                    </div>
+
+                    {/* UPI ID */}
+                    <div className="relative">
+                        <FiCreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                        <input
+                            type="text"
+                            name="upiId"
+                            placeholder="UPI ID (Optional)"
+                            value={form.upiId}
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         />
                     </div>
 
@@ -124,7 +209,7 @@ export default function Signup() {
                             placeholder="Email Address"
                             value={form.email}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             required
                         />
                     </div>
@@ -138,7 +223,7 @@ export default function Signup() {
                             placeholder="Password"
                             value={form.password}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             required
                         />
                     </div>
@@ -152,7 +237,7 @@ export default function Signup() {
                             placeholder="Confirm Password"
                             value={form.confirmPassword}
                             onChange={handleChange}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             required
                         />
                     </div>
@@ -161,13 +246,13 @@ export default function Signup() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-white font-semibold shadow-md hover:bg-green-700 disabled:opacity-50 transition-all duration-200 active:scale-95"
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-white font-semibold shadow-md transition-all duration-200 hover:bg-green-700 active:scale-95 disabled:opacity-50"
                     >
                         <FiUserPlus size={18} />
                         {loading ? "Creating Account..." : "Create Account"}
                     </button>
-                </form>
 
+                </form>
                 {/* Footer */}
                 <p className="text-center text-sm text-white/90 mt-5">
                     Already have an account?{" "}

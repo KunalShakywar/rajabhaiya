@@ -22,6 +22,7 @@ export default function App() {
 
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
+        <Route path="account" element={<Account />} />
         <Route path="/signup" element={<Signup />} />
 
         {/* Protected Routes */}
@@ -38,7 +39,6 @@ export default function App() {
           <Route index element={<Dashboard />} />
 
           {/* Customers */}
-          <Route path="account" element={<Account />} />
           <Route path="customer" element={<Customer />} />
           <Route path="customers/:id" element={<CustomerDetails />} />
           <Route

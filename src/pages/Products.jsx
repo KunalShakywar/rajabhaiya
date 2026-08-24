@@ -30,40 +30,42 @@ const Products = () => {
 
     // Fetch products
     const fetchProducts = async () => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
         const { data, error } = await supabase
             .from("products")
             .select("*")
+            .eq("user_id", user.id)
             .order("id", { ascending: false });
 
-        if (error) {
-            console.error(error);
-            return;
-        }
-
-        setProducts(data || []);
+        if (!error) setProducts(data || []);
     };
-
     useEffect(() => {
         fetchProducts();
     }, []);
 
     // Add or Update product
     const handleSave = async (product) => {
-        const { data, error } = await supabase
-            .from("products")
-            .insert([
-                {
-                    name: product.name,
-                    unit: product.unit,
-                    rate: Number(product.rate),
-                },
-            ])
-            .select();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
-        console.log("PRODUCT DATA =", data);
-        console.log("PRODUCT ERROR =", error);
+        if (!user) {
+            alert("Please login first");
+            return;
+        }
+
+        const { error } = await supabase.from("products").insert({
+            name: product.name,
+            unit: product.unit,
+            rate: Number(product.rate),
+            user_id: user.id,
+        });
 
         if (error) {
+            console.log(error);
             alert(error.message);
             return;
         }

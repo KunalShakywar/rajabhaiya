@@ -33,15 +33,22 @@ export default function RegularEntries() {
     const [historyEntries, setHistoryEntries] = useState([]);
 
     const fetchEntries = async () => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) return;
+
         const { data, error } = await supabase
             .from("regular_entries")
             .select(`
-    *,
-    customers (
-      id,
-      name
-    )
-  `)
+      *,
+      customers (
+        id,
+        name
+      )
+    `)
+            .eq("user_id", user.id)
             .order("created_at", { ascending: false });
 
         if (error) {
@@ -98,20 +105,29 @@ export default function RegularEntries() {
 
     // Save entry
     const handleSave = async (rows) => {
-        console.log("Rows received:", rows);
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
-        const { data, error } = await supabase
+        if (!user) {
+            alert("Please login first");
+            return;
+        }
+
+        const rowsWithUser = rows.map((row) => ({
+            ...row,
+            user_id: user.id,
+        }));
+
+        const { error } = await supabase
             .from("regular_entries")
-            .insert(rows)
-            .select();
+            .insert(rowsWithUser);
 
         if (error) {
             console.error(error);
             alert(error.message);
             return;
-        };
-
-        console.log("Saved:", data);
+        }
 
         await fetchEntries();
         setIsModalOpen(false);
@@ -146,20 +162,21 @@ export default function RegularEntries() {
     };
     // Fetch fucntion
     const openHistory = async (customerId, customerName) => {
-        setHistoryCustomer(customerName);
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
         const { data, error } = await supabase
             .from("regular_entries")
             .select("*")
             .eq("customer_id", customerId)
+            .eq("user_id", user.id)
             .order("created_at", { ascending: false });
 
-        if (error) {
-            console.error(error);
-            return;
-        }
+        if (error) return console.error(error);
 
         setHistoryEntries(data || []);
+        setHistoryCustomer(customerName);
         setHistoryOpen(true);
     };
 

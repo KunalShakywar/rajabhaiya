@@ -11,14 +11,18 @@ export const CustomerProvider = ({ children }) => {
     const fetchCustomers = async () => {
         try {
             setLoading(true);
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
 
             const { data, error } = await supabase
                 .from("customers")
                 .select("id, name, phone, address, qty, milk_rate")
+                .eq("user_id", user.id)
                 .order("id", { ascending: false });
 
             if (error) throw error;
-
+            // FORMATED DATA
             const formatted = data.map((item) => ({
                 id: item.id,
                 name: item.name,
@@ -26,6 +30,7 @@ export const CustomerProvider = ({ children }) => {
                 address: item.address,
                 qty: Number(item.qty || 0),
                 milkRate: Number(item.milk_rate || 0),
+
                 extraItems: [], // abhi empty rakho
             }));
 
@@ -43,6 +48,13 @@ export const CustomerProvider = ({ children }) => {
 
     // ADD CUSTOMER
     const addCustomer = async (customer) => {
+        //Get Logged User
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) throw new Error("User not logged in");
+
         const { data, error } = await supabase
             .from("customers")
             .insert([
@@ -52,6 +64,7 @@ export const CustomerProvider = ({ children }) => {
                     address: customer.address,
                     qty: customer.qty,
                     milk_rate: customer.milkRate,
+                    user_id: user.id,   // Required for RLS
                 },
             ])
             .select();
@@ -68,7 +81,6 @@ export const CustomerProvider = ({ children }) => {
             extraItems: [],
         };
 
-        // local update (no refetch)
         setCustomers((prev) => [newCustomer, ...prev]);
     };
 
