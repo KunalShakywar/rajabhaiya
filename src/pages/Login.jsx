@@ -10,15 +10,18 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError("");
 
         const { error } = await login(email, password);
 
         if (error) {
             setError(error.message);
+            setLoading(false);
             return;
         }
 
@@ -45,7 +48,7 @@ export default function Login() {
                 <div className="flex flex-col items-center mb-6">
 
                     <h1 className="text-2xl font-bold text-white text-center">
-                        Shri Ganesh Dairy
+                        Welcome Back
                     </h1>
                 </div>
 
@@ -89,10 +92,20 @@ export default function Login() {
                     {/* Login Button */}
                     <button
                         type="submit"
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-white font-semibold shadow-md hover:bg-green-700 transition-all duration-200 active:scale-95"
+                        disabled={loading}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-white font-semibold shadow-md hover:bg-green-700 disabled:opacity-70"
                     >
-                        <FiLogIn size={18} />
-                        Login
+                        {loading ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                Logging in...
+                            </>
+                        ) : (
+                            <>
+                                <FiLogIn size={18} />
+                                Login
+                            </>
+                        )}
                     </button>
                 </form>
 

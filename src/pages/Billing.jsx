@@ -4,13 +4,14 @@ import jsPDF from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { FaFilePdf, FaEye } from "react-icons/fa";
 import { FiEye, FiPhoneCall, FiUser } from "react-icons/fi";
+import { useProfile } from "../context/ProfileContext"
 
 export default function ScannerPage() {
     const [customers, setCustomers] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [billItems, setBillItems] = useState([]);
     const [total, setTotal] = useState(0);
-
+    const { profile } = useProfile();
     useEffect(() => {
         loadBills();
     }, []);
@@ -36,15 +37,23 @@ export default function ScannerPage() {
         const doc = new jsPDF();
 
         // Header
+        // Header
         doc.setFontSize(20);
-        doc.text("Shri Ganesh Dairy", 14, 20);
+        doc.setFont("helvetica", "bold");
+        doc.text(profile?.name || "Dairy", 14, 18);
 
         doc.setFontSize(10);
-        doc.text("Gwalior", 14, 28);
+        doc.setFont("helvetica", "normal");
+
+        doc.text(`Phone: ${profile?.phone || "-"}`, 14, 26);
+        doc.text(`Email: ${profile?.email || "-"}`, 14, 32);
+        doc.text(profile?.address || "-", 14, 38);
+
+        // Date (right side)
         doc.text(
             `Date: ${new Date().toLocaleDateString("en-IN")}`,
             150,
-            28
+            26
         );
 
         // Customer

@@ -43,7 +43,42 @@ export const CustomerProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        fetchCustomers();
+        let channel;
+
+        const setupRealtime = async () => {
+            await fetchCustomers();
+
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+
+            if (!user) return;
+
+            channel = supabase
+                .channel("customers-realtime")
+                .on(
+                    "postgres_changes",
+                    {
+                        event: "*",
+                        schema: "public",
+                        table: "customers",
+                        filter: `user_id=eq.${user.id}`,
+                    },
+                    (payload) => {
+                        console.log("Realtime:", payload);
+                        fetchCustomers();
+                    }
+                )
+                .subscribe((status) => {
+                    console.log("STATUS:", status);
+                });
+        };
+
+        setupRealtime();
+
+        return () => {
+            if (channel) supabase.removeChannel(channel);
+        };
     }, []);
 
     // ADD CUSTOMER

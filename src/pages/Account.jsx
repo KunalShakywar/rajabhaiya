@@ -17,6 +17,7 @@ import { TbCurrencyRupee } from "react-icons/tb";
 
 export default function Account() {
     const { user, logout } = useAuth();
+    const [loggingOut, setLoggingOut] = useState(false);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     // hide and show
@@ -49,7 +50,23 @@ export default function Account() {
             </div>
         );
     }
+    const handleLogout = async () => {
+        const { error } = await supabase.auth.signOut();
+        try {
+            await logout();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoggingOut(false);
+        }
+        if (error) {
+            console.error(error);
+            return;
+        }
 
+        // optional: redirect
+        window.location.href = "/login";
+    };
     const joined = user?.created_at
         ? new Date(user.created_at).toLocaleDateString("en-IN", {
             day: "numeric",
@@ -99,11 +116,21 @@ export default function Account() {
                         </div>
 
                         <button
-                            onClick={logout}
-                            className="w-full text-white mt-8 bg-red-600 hover:bg-red-700 rounded-xl py-3 font-semibold flex items-center justify-center gap-2 transition"
+                            onClick={handleLogout}
+                            disabled={loggingOut}
+                            className="w-full mt-8 bg-red-600 hover:bg-red-700 disabled:opacity-70 text-white rounded-xl py-3 font-semibold flex items-center justify-center gap-2"
                         >
-                            <FiLogOut />
-                            Logout
+                            {loggingOut ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Logging out...
+                                </>
+                            ) : (
+                                <>
+                                    <FiLogOut />
+                                    Logout
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

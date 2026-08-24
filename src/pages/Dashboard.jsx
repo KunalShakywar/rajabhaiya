@@ -11,9 +11,11 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { useProfile } from "../context/ProfileContext"
 
 export default function Dashboard() {
     const navigate = useNavigate();
+    const { profile, loading } = useProfile();
 
     const [stats, setStats] = useState({
         totalCustomers: 0,
@@ -25,12 +27,6 @@ export default function Dashboard() {
     });
 
     const shortcuts = [
-        {
-            title: "User",
-            icon: <FiUser size={24} />,
-            color: "bg-cyan-500",
-            path: "/account",
-        },
         {
             title: "Customers",
             icon: <FiUsers size={24} />,
@@ -144,7 +140,7 @@ export default function Dashboard() {
             {/* Header */}
             <div className="mb-5">
                 <h1 className="dark:text-white  text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
-                    Shri Ganesh Dairy
+                    {profile?.name || "Loading..."}
                 </h1>
 
             </div>

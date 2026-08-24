@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import { CustomerProvider } from './context/CustomerContext.jsx'
 import { ProductProvider } from "./context/ProductContext";
 import { ThemeProvider } from "./pages/context/ThemeContext";
+import { ProfileProvider } from './context/ProfileContext.jsx'
 
 registerSW({ immediate: true })
 
@@ -16,7 +17,9 @@ createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <CustomerProvider>
           <ProductProvider>
-            <App />
+            <ProfileProvider>
+              <App />
+            </ProfileProvider>
           </ProductProvider>
         </CustomerProvider>
       </AuthProvider>
