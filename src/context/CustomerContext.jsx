@@ -11,9 +11,16 @@ export const CustomerProvider = ({ children }) => {
     const fetchCustomers = async () => {
         try {
             setLoading(true);
+
             const {
                 data: { user },
             } = await supabase.auth.getUser();
+
+            // No logged-in user
+            if (!user) {
+                setCustomers([]);
+                return;
+            }
 
             const { data, error } = await supabase
                 .from("customers")
@@ -22,28 +29,33 @@ export const CustomerProvider = ({ children }) => {
                 .order("id", { ascending: false });
 
             if (error) throw error;
-            // FORMATED DATA
-            const formatted = data.map((item) => ({
+
+            const formattedCustomers = (data || []).map((item) => ({
                 id: item.id,
                 name: item.name,
                 phone: item.phone,
                 address: item.address,
                 qty: Number(item.qty || 0),
                 milkRate: Number(item.milk_rate || 0),
-
-                extraItems: [], // abhi empty rakho
+                extraItems: [],
             }));
 
-            setCustomers(formatted);
+            console.log("CUSTOMERS FROM SUPABASE:", formattedCustomers);
+
+            setCustomers(formattedCustomers);
+
         } catch (err) {
-            console.error("Fetch error:", err.message);
+            console.error("Fetch customers error:", err.message);
+            setCustomers([]);
         } finally {
             setLoading(false);
         }
     };
 
+    // INITIAL FETCH + REALTIME
     useEffect(() => {
-        let channel;
+        let channel = null;
+        let cancelled = false;
 
         const setupRealtime = async () => {
             await fetchCustomers();
@@ -52,43 +64,75 @@ export const CustomerProvider = ({ children }) => {
                 data: { user },
             } = await supabase.auth.getUser();
 
-            if (!user) return;
+            if (!user || cancelled) return;
 
-            channel = supabase
-                .channel("customers-realtime")
-                .on(
-                    "postgres_changes",
-                    {
-                        event: "*",
-                        schema: "public",
-                        table: "customers",
-                        filter: `user_id=eq.${user.id}`,
-                    },
-                    (payload) => {
-                        console.log("Realtime:", payload);
-                        fetchCustomers();
-                    }
-                )
-                .subscribe((status) => {
-                    console.log("STATUS:", status);
-                });
+            // Remove old channel
+            const existingChannel = supabase
+                .getChannels()
+                .find(
+                    (c) =>
+                        c.topic ===
+                        "realtime:customers-realtime"
+                );
+
+            if (existingChannel) {
+                await supabase.removeChannel(
+                    existingChannel
+                );
+            }
+
+            // Create realtime channel
+            channel = supabase.channel(
+                "customers-realtime"
+            );
+
+            channel.on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "customers",
+                    filter: `user_id=eq.${user.id}`,
+                },
+                (payload) => {
+                    console.log(
+                        "Customer Realtime:",
+                        payload
+                    );
+
+                    fetchCustomers();
+                }
+            );
+
+            channel.subscribe((status) => {
+                console.log(
+                    "CUSTOMER REALTIME STATUS:",
+                    status
+                );
+            });
         };
 
         setupRealtime();
 
         return () => {
-            if (channel) supabase.removeChannel(channel);
+            cancelled = true;
+
+            if (channel) {
+                supabase.removeChannel(channel);
+                channel = null;
+            }
         };
     }, []);
 
     // ADD CUSTOMER
     const addCustomer = async (customer) => {
-        //Get Logged User
         const {
             data: { user },
         } = await supabase.auth.getUser();
 
-        if (!user) throw new Error("User not logged in");
+        if (!user) {
+            throw new Error("User not logged in");
+        }
 
         const { data, error } = await supabase
             .from("customers")
@@ -97,38 +141,60 @@ export const CustomerProvider = ({ children }) => {
                     name: customer.name,
                     phone: customer.phone,
                     address: customer.address,
-                    qty: customer.qty,
-                    milk_rate: customer.milkRate,
-                    user_id: user.id,   // Required for RLS
+                    qty: Number(customer.qty || 0),
+                    milk_rate: Number(customer.milkRate || 0),
+                    user_id: user.id,
                 },
             ])
-            .select();
+            .select()
+            .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error(
+                "Add customer error:",
+                error
+            );
+
+            throw error;
+        }
 
         const newCustomer = {
-            id: data[0].id,
-            name: data[0].name,
-            phone: data[0].phone,
-            address: data[0].address,
-            qty: Number(data[0].qty || 0),
-            milkRate: Number(data[0].milk_rate || 0),
+            id: data.id,
+            name: data.name,
+            phone: data.phone,
+            address: data.address,
+            qty: Number(data.qty || 0),
+            milkRate: Number(data.milk_rate || 0),
             extraItems: [],
         };
 
-        setCustomers((prev) => [newCustomer, ...prev]);
+        setCustomers((prev) => [
+            newCustomer,
+            ...prev,
+        ]);
     };
 
     // DELETE CUSTOMER
     const deleteCustomer = async (id) => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+            throw new Error("User not logged in");
+        }
+
         const { error } = await supabase
             .from("customers")
             .delete()
-            .eq("id", id);
+            .eq("id", id)
+            .eq("user_id", user.id);
 
         if (error) throw error;
 
-        setCustomers((prev) => prev.filter((c) => c.id !== id));
+        setCustomers((prev) =>
+            prev.filter((c) => c.id !== id)
+        );
     };
 
     return (
@@ -146,4 +212,5 @@ export const CustomerProvider = ({ children }) => {
     );
 };
 
-export const useCustomers = () => useContext(CustomerContext);
+export const useCustomers = () =>
+    useContext(CustomerContext);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
     FiMail,
@@ -132,6 +133,11 @@ export default function Account() {
                                 </>
                             )}
                         </button>
+                    </div>
+                    <div>
+                        <span>
+                            <Link to="/dairy">Home</Link>
+                        </span>
                     </div>
                 </div>
 

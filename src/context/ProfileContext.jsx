@@ -5,36 +5,57 @@ import { useAuth } from "./AuthContext";
 const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
 
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (user?.id) {
-            loadProfile();
-        } else {
+    const loadProfile = async () => {
+        // Admin doesn't have dairy_profile
+        if (!user || isAdmin) {
+            setProfile(null);
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const { data, error } = await supabase
+                .from("dairy_profile")
+                .select("*")
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+            if (error) {
+                console.error("Profile error:", error);
+                setProfile(null);
+                return;
+            }
+
+            setProfile(data || null);
+
+        } catch (error) {
+            console.error("Profile error:", error);
+            setProfile(null);
+
+        } finally {
             setLoading(false);
         }
-    }, [user]);
-
-    const loadProfile = async () => {
-        setLoading(true);
-
-        const { data, error } = await supabase
-            .from("dairy_profile")
-            .select("*")
-            .eq("user_id", user.id)
-            .single();
-
-        console.log(data, error);
-
-        setProfile(data);
-        setLoading(false);
     };
 
+    useEffect(() => {
+        loadProfile();
+    }, [user, isAdmin]);
+
     return (
-        <ProfileContext.Provider value={{ profile, loading }}>
+        <ProfileContext.Provider
+            value={{
+                profile,
+                loading,
+                loadProfile,
+            }}
+        >
             {children}
         </ProfileContext.Provider>
     );

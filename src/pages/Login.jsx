@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase"
 
 export default function Login() {
     const { login } = useAuth();
@@ -25,7 +26,99 @@ export default function Login() {
             return;
         }
 
-        navigate("/", { replace: true });
+        // Get logged in user
+        const {
+            data: { user },
+            error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+            setError("Unable to get logged in user.");
+            setLoading(false);
+            return;
+        }
+
+        console.log("User ID:", user.id);
+
+        // =========================
+        // CHECK ADMIN
+        // =========================
+        const {
+            data: admin,
+            error: adminError,
+        } = await supabase
+            .from("admin_users")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        console.log("Admin:", admin);
+        console.log("Admin Error:", adminError);
+
+        // Admin found
+        if (admin) {
+            setLoading(false);
+            navigate("/admin", { replace: true });
+            return;
+        }
+
+        // =========================
+        // CHECK DAIRY PROFILE
+        // =========================
+        const {
+            data: dairy,
+            error: dairyError,
+        } = await supabase
+            .from("dairy_profile")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        console.log("Dairy:", dairy);
+        console.log("Dairy Error:", dairyError);
+
+        if (dairyError) {
+            console.error("Dairy profile error:", dairyError);
+
+            setError("Unable to verify dairy account.");
+            setLoading(false);
+            return;
+        }
+
+        // =========================
+        // DAIRY USER FOUND
+        // =========================
+        console.log("DAIRY:", dairy);
+        console.log("DAIRY STATUS:", dairy?.status);
+        if (dairy) {
+
+            // APPROVED
+            if (dairy.status === "approved") {
+                setLoading(false);
+                navigate("/account", { replace: true });
+                return;
+            }
+
+            // PENDING
+            if (dairy.status === "pending") {
+                setError("Your dairy account is waiting for admin approval.");
+                setLoading(false);
+                return;
+            }
+
+            // REJECTED
+            if (dairy.status === "rejected") {
+                setError("Your dairy account has been rejected.");
+                setLoading(false);
+                return;
+            }
+        }
+
+        // =========================
+        // NO ROLE FOUND
+        // =========================
+        setError("Your account is not registered as an admin or dairy user.");
+        setLoading(false);
     };
 
     return (

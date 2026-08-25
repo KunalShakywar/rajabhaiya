@@ -10,41 +10,49 @@ import RegularEntries from "./pages/RegularEntries";
 import CustomerCardPage from "./pages/CustomerCardsPage";
 import EntriesPage from "./pages/EntriesPage";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup"
-import Account from "./pages/Account"
-
+import Signup from "./pages/Signup";
+import Account from "./pages/Account";
+import { useAuth } from "./context/AuthContext";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import PendingUsers from "./pages/admin/pendingUsers";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
+  const { loading, isAdmin } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Public Route */}
+        {/* Authentication */}
         <Route path="/login" element={<Login />} />
-        <Route path="account" element={<Account />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/account" element={<Account />} />
 
-        {/* Protected Routes */}
+        {/* Admin */}
+        <Route element={<ProtectedRoute isAdmin={isAdmin} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/pending-users" element={<PendingUsers />} />
+        </Route>
+
+        {/* Dairy */}
         <Route
-          path="/"
+          path="/dairy"
           element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }
         >
-
           {/* Dashboard */}
           <Route index element={<Dashboard />} />
 
           {/* Customers */}
           <Route path="customer" element={<Customer />} />
           <Route path="customers/:id" element={<CustomerDetails />} />
-          <Route
-            path="customers/:id/card"
-            element={<CustomerCardPage />}
-          />
+          <Route path="customers/:id/card" element={<CustomerCardPage />} />
 
           {/* Products */}
           <Route path="products" element={<Products />} />
@@ -56,6 +64,7 @@ export default function App() {
           {/* Billing */}
           <Route path="billing" element={<Billing />} />
         </Route>
+
       </Routes>
     </BrowserRouter>
   );
