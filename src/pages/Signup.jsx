@@ -34,11 +34,13 @@ export default function Signup() {
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [step, setStep] = useState(1);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-
+    // SUBMIT
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -46,42 +48,94 @@ export default function Signup() {
             return setError("Passwords do not match");
         }
 
-        setLoading(true);
-        setError("");
+        try {
+            setLoading(true);
+            setError("");
 
-        const { data, error } = await register(form.email, form.password);
-
-        if (error) {
-            setLoading(false);
-            return setError(error.message);
-        }
-        if (!data.session) {
-            return setError("Please verify your email before creating profile.");
-        }
-        const user = data.user;
-        const { error: profileError } = await supabase
-            .from("dairy_profile")
-            .insert({
-                name: form.dairyName,
-                owner: form.ownerName,
-                phone: form.phone,
-                address: form.address,
+            const { error } = await supabase.auth.signInWithOtp({
                 email: form.email,
-                gst_no: form.gstNo,
-                upi_id: form.upiId,
-                user_id: user.id,
-                logo_url: "",
-
+                options: {
+                    data: {
+                        ownerName: form.ownerName,
+                        dairyName: form.dairyName,
+                        phone: form.phone,
+                        address: form.address,
+                        gstNo: form.gstNo,
+                        upiId: form.upiId,
+                        role: form.role,
+                    },
+                },
             });
 
-        setLoading(false);
+            if (error) {
+                throw error;
+            }
 
-        if (profileError) {
-            return setError(profileError.message);
+            alert("OTP sent to your email");
+
+            setStep(2);
+
+        } catch (error) {
+            console.error(error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // VERIFY
+    const handleVerifyOTP = async () => {
+        if (!otp) {
+            return setError("Please enter OTP");
         }
 
-        alert("Dairy account created successfully");
-        navigate("/login");
+        try {
+            setLoading(true);
+            setError("");
+
+            const { data, error } =
+                await supabase.auth.verifyOtp({
+                    email: form.email,
+                    token: otp,
+                    type: "email",
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            const user = data.user;
+
+            console.log("Authenticated user:", user);
+
+            const { error: profileError } = await supabase
+                .from("dairy_profile")
+                .insert({
+                    name: form.dairyName,
+                    owner: form.ownerName,
+                    phone: form.phone,
+                    address: form.address,
+                    email: form.email,
+                    gst_no: form.gstNo,
+                    upi_id: form.upiId,
+                    user_id: user.id,
+                    logo_url: "",
+                });
+
+            if (profileError) {
+                throw profileError;
+            }
+
+            alert("Dairy account created successfully");
+
+            navigate("/login");
+
+        } catch (error) {
+            console.error(error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -264,6 +318,44 @@ export default function Signup() {
                     </Link>
                 </p>
             </div>
+            {step === 2 && (
+                <div className="space-y-4">
+
+                    <div className="text-center">
+                        <h2 className="text-xl font-bold text-white">
+                            Verify Your Email
+                        </h2>
+
+                        <p className="text-sm text-white/80 mt-1">
+                            OTP sent to {form.email}
+                        </p>
+                    </div>
+
+                    <div className="relative">
+                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={6}
+                            placeholder="Enter 6 digit OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            className="w-full rounded-xl border border-gray-300 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        />
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleVerifyOTP}
+                        disabled={loading}
+                        className="w-full rounded-xl bg-green-600 py-3 text-white font-semibold hover:bg-green-700 disabled:opacity-50"
+                    >
+                        {loading ? "Verifying..." : "Verify OTP & Create Account"}
+                    </button>
+
+                </div>
+            )}
         </div>
     );
 }

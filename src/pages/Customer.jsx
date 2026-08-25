@@ -52,16 +52,25 @@ const columns = [
 ];
 
 const Customer = () => {
-
     const [open, setOpen] = useState(false);
+    const [editingCustomer, setEditingCustomer] = useState(null);
     const navigate = useNavigate();
-    const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
+    const { customers, loading, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
     // Add customer
     const handleAddCustomer = async (customer) => {
         try {
-            await addCustomer(customer);
+            if (editingCustomer) {
+                // EDIT
+                await updateCustomer(editingCustomer.id, customer);
+            } else {
+                // ADD
+                await addCustomer(customer);
+            }
+
             setOpen(false);
+            setEditingCustomer(null);
         } catch (err) {
+            console.error(err);
             alert(err.message);
         }
     };
@@ -85,7 +94,10 @@ const Customer = () => {
                 <h1 className="text-sm lg:text-xl font-bold">Customers</h1>
 
                 <button
-                    onClick={() => setOpen(true)}
+                    onClick={() => {
+                        setEditingCustomer(null);
+                        setOpen(true);
+                    }}
                     className="bg-green-600 border border-green-800  text-sm lg:text-xl hover:bg-green-700 text-white px-4 py-1 rounded-lg font-medium cursor-pointer"
                 >
                     + Add New Customer
@@ -100,18 +112,25 @@ const Customer = () => {
                 actions={[
                     {
                         label: <FaIdCard />,
-                        className: "bg-purple-500 hover:bg-purple-600 text-white cursor-pointer border border-purple-700",
-                        onClick: (row) => navigate(`/customers/${row.id}/card`),
+                        className:
+                            "bg-purple-500 hover:bg-purple-600 text-white cursor-pointer border border-purple-700",
+                        onClick: (row) =>
+                            navigate(`/dairy/customers/${row.id}/card`),
                     },
                     {
                         label: <FiEye size={18} />,
-                        className: "bg-blue-500 hover:bg-blue-600 cursor-pointer border border-blue-700",
-                        onClick: (row) => navigate(`/customers/${row.id}`),
+                        className:
+                            "bg-blue-500 hover:bg-blue-600 cursor-pointer border border-blue-700",
+                        onClick: (row) => navigate(`/dairy/customers/${row.id}`),
                     },
                     {
                         label: <FiEdit size={18} />,
-                        className: "bg-yellow-500 hover:bg-yellow-600 cursor-pointer border border-yellow-700",
-                        onClick: (row) => console.log("Edit:", row),
+                        className:
+                            "bg-yellow-500 hover:bg-yellow-600 cursor-pointer border border-yellow-700",
+                        onClick: (row) => {
+                            setEditingCustomer(row);
+                            setOpen(true);
+                        },
                     },
                     {
                         label: <FiTrash size={18} />,
@@ -123,7 +142,11 @@ const Customer = () => {
 
             <AddCustomerModal
                 open={open}
-                onClose={() => setOpen(false)}
+                customer={editingCustomer}
+                onClose={() => {
+                    setOpen(false);
+                    setEditingCustomer(null);
+                }}
                 onSubmit={handleAddCustomer}
             />
         </>

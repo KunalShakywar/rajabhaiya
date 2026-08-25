@@ -20,7 +20,7 @@ export default function Navbar() {
     const navClass = ({ isActive }) =>
         `flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isActive
             ? "bg-blue-600 text-white shadow"
-            : "text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-zinc-800"
+            : "text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-slate-50/10"
         }`;
 
     const mobileClass = ({ isActive }) =>

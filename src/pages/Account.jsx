@@ -82,7 +82,7 @@ export default function Account() {
 
                 {/* LEFT PROFILE CARD */}
                 <div className="lg:sticky lg:top-6 h-fit">
-                    <div className=" border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900 p-4 rounded-xl dark:text-white shadow-xl">
+                    <div className=" border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 p-4 rounded-xl dark:text-white shadow-xl">
 
                         <div className="w-28 h-28 mx-auto rounded-full bg-white/20 border border-slate-200 flex items-center justify-center text-5xl font-bold">
                             {profile?.owner?.charAt(0) || "D"}
@@ -135,16 +135,23 @@ export default function Account() {
                         </button>
                     </div>
                     <div>
-                        <span>
-                            <Link to="/dairy">Home</Link>
-                        </span>
+                        <Link
+                            to="/dairy"
+                            className="w-10 h-10 flex items-center justify-center rounded-full
+               text-gray-600 dark:text-white
+               hover:bg-gray-100 dark:hover:bg-white/10
+               hover:text-blue-600 dark:hover:text-blue-400
+               transition-all duration-200"
+                        >
+                            <FiHome size={20} />
+                        </Link>
                     </div>
                 </div>
 
                 {/* 2nd SLIDE AND RIGHT DETAILS */}
                 <div className="lg:col-span-2 space-y-5">
 
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow">
+                    <div>
                         {/* Header */}
                         <button
                             onClick={() => setShowDairy(!showDairy)}
@@ -194,7 +201,7 @@ export default function Account() {
                     </div>
                     {/* Second */}
 
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow">
+                    <div >
                         <button
                             onClick={() => setShowAccount(!showAccount)}
                             className="w-full flex items-center justify-between p-5 lg:cursor-default"
@@ -242,19 +249,30 @@ export default function Account() {
 
 function Info({ icon, title, value, color }) {
     const bg = {
-        blue: "bg-blue-100 text-blue-600",
-        green: "bg-green-100 text-green-600",
-        orange: "bg-orange-100 text-orange-600",
+        blue: "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
+        green: "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400",
+        orange: "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400",
     };
 
     return (
         <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-            <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${bg[color]}`}>
+
+            {/* Icon */}
+            <div
+                className={`w-11 h-11 rounded-full flex items-center justify-center ${bg[color]}`}
+            >
                 {icon}
             </div>
+
+            {/* Details */}
             <div>
-                <p className="text-xs text-gray-500 dark:text-white">{title}</p>
-                <p className="font-semibold dark:text-white">{value || "-"}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-300">
+                    {title}
+                </p>
+
+                <p className="font-semibold text-gray-800 dark:text-white">
+                    {value || "-"}
+                </p>
             </div>
         </div>
     );

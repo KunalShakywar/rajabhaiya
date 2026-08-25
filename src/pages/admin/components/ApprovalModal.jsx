@@ -53,7 +53,18 @@ export default function ApprovalModal({ shop, onClose, refresh }) {
             setLoading(false);
         }
     };
+    // Suspend
+    const handleSuspend = async () => {
+        const { error } = await supabase
+            .from("dairy_profile")
+            .update({ status: "suspended" })
+            .eq("id", shop.id);
 
+        if (!error) {
+            refresh();
+            onClose();
+        }
+    };
     // =========================
     // REJECT SHOP
     // =========================
@@ -272,6 +283,13 @@ export default function ApprovalModal({ shop, onClose, refresh }) {
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold disabled:opacity-50"
                     >
                         {loading ? "Processing..." : "Approve"}
+                    </button>
+                    <button
+                        disabled={loading}
+                        onClick={handleSuspend}
+                        className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white py-2 rounded-lg"
+                    >
+                        {loading ? "Suspending..." : "Suspend"}
                     </button>
 
                 </div>

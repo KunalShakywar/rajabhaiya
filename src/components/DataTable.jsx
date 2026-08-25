@@ -74,10 +74,11 @@ const DataTable = ({
     // prev and next css
     const pigBtn = "px-4 py-2 text-sm rounded-lg border border-white dark:border-slate-700 bg-gray-100 dark:bg-gray-900 disabled:opacity-50 hover:bg-gray-200 cursor-pointer"
     return (
-        <div className=" dark:bg-gray-900 backdrop-blur-md rounded-xl shadow border border-white  dark:border-slate-700 ">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-slate-700">
+
             {/* Search */}
             {searchKeys.length > 0 && (
-                <div className="mb-4">
+                <div className="p-4 border-b border-gray-200 dark:border-slate-700">
                     <input
                         type="text"
                         placeholder="Search..."
@@ -86,78 +87,81 @@ const DataTable = ({
                             setSearch(e.target.value);
                             setCurrentPage(1);
                         }}
-                        className="w-full md:w-72 px-4 py-2  border  dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-gray-400"
+                        className="w-full md:w-80 px-4 py-2 rounded-lg
+          bg-gray-50 dark:bg-gray-800
+          border border-gray-300 dark:border-slate-600
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400
+          focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                 </div>
             )}
 
             {/* Table */}
             <div className="overflow-x-auto">
-                <table className="min-w-full table-fixed border-collapse dark:bg-gray-900">
-                    <thead className="bg-gray-100 dark:bg-gray-700 ">
+                <table className="min-w-full border-collapse">
+                    <thead className="bg-gray-100 dark:bg-gray-800">
                         <tr>
                             {columns.map((col) => (
                                 <th
                                     key={col.accessor}
-                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white"
+                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200"
                                 >
                                     {col.header}
                                 </th>
                             ))}
 
                             {hasAlertColumn && (
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-200">
                                     Alert
                                 </th>
                             )}
 
                             {actions.length > 0 && (
-                                <th className="w-32 px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-white">
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-200">
                                     Actions
                                 </th>
                             )}
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-300 dark:divide-slate-700">
-                        {paginatedData.length > 0 ? (
+                    <tbody>
+                        {paginatedData.length ? (
                             paginatedData.map((row, index) => (
-                                <tr key={row.id || index} className="hover:bg-gray-50 hover:dark:bg-gray-50/10 dark:bg-gray-800">
+                                <tr
+                                    key={row.id || index}
+                                    className="border-t border-gray-200 dark:border-slate-700
+                hover:bg-gray-50 dark:hover:bg-gray-800/60 transition"
+                                >
                                     {columns.map((col) => (
                                         <td
                                             key={col.accessor}
-                                            className="px-4 py-3 text-sm text-gray-700 dark:text-white truncate max-w-55 whitespace-nowrap"
+                                            className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap"
                                         >
-                                            {col.render
-                                                ? col.render(row)
-                                                : row[col.accessor]}
+                                            {col.render ? col.render(row) : row[col.accessor]}
                                         </td>
                                     ))}
 
                                     {hasAlertColumn && (
-                                        <td className="px-4 py-3 text-center whitespace-nowrap">
+                                        <td className="px-4 py-3 text-center">
                                             {getAlert(row.endMonth)}
                                         </td>
                                     )}
 
                                     {actions.length > 0 && (
-                                        <td className="w-32 px-4 py-3">
-                                            <div className="flex items-center justify-center gap-2 whitespace-nowrap">
-                                                {actions.map((action, i) => (
-                                                    <button
-                                                        key={i}
-                                                        onClick={() => action.onClick(row)}
-                                                        className={`
-                              w-9 h-9
-                              flex items-center justify-center
-                              rounded-lg text-white
-                              transition-colors
-                              ${action.className}
-                            `}
-                                                    >
-                                                        {action.label}
-                                                    </button>
-                                                ))}
+                                        <td className="px-4 py-3">
+                                            <div className="flex justify-center gap-2">
+                                                {actions
+                                                    .filter((a) => !a.hidden || !a.hidden(row))
+                                                    .map((action, i) => (
+                                                        <button
+                                                            key={i}
+                                                            onClick={() => action.onClick(row)}
+                                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium text-white transition ${action.className}`}
+                                                        >
+                                                            {action.label}
+                                                        </button>
+                                                    ))}
                                             </div>
                                         </td>
                                     )}
@@ -169,9 +173,9 @@ const DataTable = ({
                                     colSpan={
                                         columns.length +
                                         (hasAlertColumn ? 1 : 0) +
-                                        (actions.length > 0 ? 1 : 0)
+                                        (actions.length ? 1 : 0)
                                     }
-                                    className="px-4 py-6 text-center text-gray-500"
+                                    className="py-8 text-center text-gray-500 dark:text-gray-400"
                                 >
                                     No matching data found
                                 </td>
@@ -183,32 +187,35 @@ const DataTable = ({
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                    <p className="text-sm text-gray-600 p-2">
-                        {start + 1} to {Math.min(start + rowsPerPage, filteredData.length)} of {filteredData.length}
+                <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-slate-700">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {start + 1}–{Math.min(start + rowsPerPage, filteredData.length)} of{" "}
+                        {filteredData.length}
                     </p>
 
-                    <div className="flex gap-2 p-2">
+                    <div className="flex items-center gap-2">
                         <button
-                            onClick={() =>
-                                setCurrentPage((p) => Math.max(p - 1, 1))
-                            }
+                            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                             disabled={currentPage === 1}
-                            className={pigBtn}
+                            className="p-2 rounded-lg border border-gray-300 dark:border-slate-600
+            bg-white dark:bg-gray-800
+            text-gray-700 dark:text-gray-200
+            disabled:opacity-40"
                         >
                             <FiArrowLeft />
                         </button>
 
-                        <span className="px-3 py-2 text-sm">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {currentPage} / {totalPages}
                         </span>
 
                         <button
-                            onClick={() =>
-                                setCurrentPage((p) => Math.min(p + 1, totalPages))
-                            }
+                            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                             disabled={currentPage === totalPages}
-                            className={pigBtn}
+                            className="p-2 rounded-lg border border-gray-300 dark:border-slate-600
+            bg-white dark:bg-gray-800
+            text-gray-700 dark:text-gray-200
+            disabled:opacity-40"
                         >
                             <FiArrowRight />
                         </button>

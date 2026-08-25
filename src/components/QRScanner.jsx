@@ -13,58 +13,40 @@ export default function QRScanner({ onScan }) {
     const [scannerActive, setScannerActive] = useState(true);
 
     useEffect(() => {
-        if (!scannerActive) return;
+        console.log("1. QRScanner mounted");
 
         const codeReader = new BrowserQRCodeReader();
-        readerRef.current = codeReader;
 
         const startScanner = async () => {
+            console.log("2. Starting camera");
+
             try {
-                // Camera permission
                 await navigator.mediaDevices.getUserMedia({ video: true });
+                console.log("3. Camera permission OK");
 
-                // All video devices
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const cameras = devices.filter((d) => d.kind === "videoinput");
+                const devices = await BrowserQRCodeReader.listVideoInputDevices();
+                console.log("4. Devices:", devices);
 
-                if (cameras.length === 0) {
-                    setError("No camera found");
-                    return;
-                }
-
-                // Back camera prefer
-                const camera =
-                    cameras.find((c) =>
-                        c.label.toLowerCase().includes("back")
-                    ) || cameras[0];
-
-                codeReader.decodeFromVideoDevice(
-                    camera.deviceId,
+                await codeReader.decodeFromVideoDevice(
+                    devices[0].deviceId,
                     videoRef.current,
-                    (res) => {
-                        if (!res) return;
-
-                        const text = res.getText();
-
-                        setResult(text);
-                        setDetected(true);
-                        onScan?.(text);
-
-                        codeReader.reset();
-                        setScannerActive(false);
+                    (result) => {
+                        if (result) {
+                            console.log("5. QR DETECTED:", result.getText());
+                            onScan(result.getText());
+                        }
                     }
                 );
-            } catch (err) {
-                console.error(err);
-                setError(err.message);
+            } catch (e) {
+                console.error("Scanner Error:", e);
             }
         };
 
         startScanner();
 
         return () => codeReader.reset();
-    }, [scannerActive, onScan]);
-
+    }, []);
+    console.log(scannerActive)
     // Dobara scan karne ke liye
     const startAgain = () => {
         setResult("");

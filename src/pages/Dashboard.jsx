@@ -31,31 +31,31 @@ export default function Dashboard() {
             title: "Customers",
             icon: <FiUsers size={24} />,
             color: "bg-blue-500",
-            path: "/customer",
+            path: "/dairy/customer",
         },
         {
             title: "QR Scan",
             icon: <FiCamera size={24} />,
             color: "bg-slate-500",
-            path: "/entries",
+            path: "/dairy/entries",
         },
         {
             title: "Products",
             icon: <FiPackage size={24} />,
             color: "bg-green-500",
-            path: "/products",
+            path: "/dairy/products",
         },
         {
             title: "Entries",
             icon: <FiClipboard size={24} />,
             color: "bg-purple-500",
-            path: "/regularentries",
+            path: "/dairy/regularentries",
         },
         {
             title: "Cards",
             icon: <FiCreditCard size={24} />,
             color: "bg-pink-500",
-            path: "/customers",
+            path: "/dairy/customers",
         },
     ];
 

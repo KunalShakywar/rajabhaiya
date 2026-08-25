@@ -112,6 +112,12 @@ export default function Login() {
                 setLoading(false);
                 return;
             }
+            // SUSPEND
+            if (profile.status === "suspended") {
+                await supabase.auth.signOut();
+                alert("Your account has been suspended by Admin.");
+                return;
+            }
         }
 
         // =========================
