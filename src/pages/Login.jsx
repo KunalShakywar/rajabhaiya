@@ -2,19 +2,27 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../lib/supabase"
+import { supabase } from "../lib/supabase";
+import ForgotPassword from "./ForgotPassword";
 
 export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // =========================
+    // LOGIN
+    // =========================
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         setLoading(true);
         setError("");
 
@@ -26,7 +34,9 @@ export default function Login() {
             return;
         }
 
-        // Get logged in user
+        // =========================
+        // GET LOGGED IN USER
+        // =========================
         const {
             data: { user },
             error: userError,
@@ -55,7 +65,7 @@ export default function Login() {
         console.log("Admin:", admin);
         console.log("Admin Error:", adminError);
 
-        // Admin found
+        // ADMIN FOUND
         if (admin) {
             setLoading(false);
             navigate("/admin", { replace: true });
@@ -88,9 +98,9 @@ export default function Login() {
         // =========================
         // DAIRY USER FOUND
         // =========================
-        console.log("DAIRY:", dairy);
-        console.log("DAIRY STATUS:", dairy?.status);
         if (dairy) {
+            console.log("DAIRY:", dairy);
+            console.log("DAIRY STATUS:", dairy.status);
 
             // APPROVED
             if (dairy.status === "approved") {
@@ -101,7 +111,9 @@ export default function Login() {
 
             // PENDING
             if (dairy.status === "pending") {
-                setError("Your dairy account is waiting for admin approval.");
+                setError(
+                    "Your dairy account is waiting for admin approval."
+                );
                 setLoading(false);
                 return;
             }
@@ -112,10 +124,16 @@ export default function Login() {
                 setLoading(false);
                 return;
             }
-            // SUSPEND
-            if (profile.status === "suspended") {
+
+            // SUSPENDED
+            if (dairy.status === "suspended") {
                 await supabase.auth.signOut();
-                alert("Your account has been suspended by Admin.");
+
+                setError(
+                    "Your account has been suspended by Admin."
+                );
+
+                setLoading(false);
                 return;
             }
         }
@@ -123,7 +141,10 @@ export default function Login() {
         // =========================
         // NO ROLE FOUND
         // =========================
-        setError("Your account is not registered as an admin or dairy user.");
+        setError(
+            "Your account is not registered as an admin or dairy user."
+        );
+
         setLoading(false);
     };
 
@@ -137,87 +158,167 @@ export default function Login() {
                     })`,
             }}
         >
-            {/* Overlay */}
+            {/* =========================
+                OVERLAY
+            ========================= */}
             <div className="absolute inset-0 bg-black/50"></div>
 
-            {/* Login Card */}
+            {/* =========================
+                CARD
+            ========================= */}
             <div className="relative z-10 w-full max-w-sm rounded-3xl bg-white/30 backdrop-blur-xl border border-white/20 p-6 shadow-2xl">
 
-                {/* Logo */}
+                {/* =========================
+                    HEADER
+                ========================= */}
                 <div className="flex flex-col items-center mb-6">
 
                     <h1 className="text-2xl font-bold text-white text-center">
-                        Welcome Back
+                        {showForgotPassword
+                            ? "Forgot Password"
+                            : "Welcome Back"}
                     </h1>
+
+                    <p className="text-sm text-white/80 mt-1 text-center">
+                        {showForgotPassword
+                            ? "Enter your email to reset your password"
+                            : "Login to your account"}
+                    </p>
+
                 </div>
 
-                {/* Error */}
-                {error && (
+                {/* =========================
+                    ERROR
+                ========================= */}
+                {error && !showForgotPassword && (
                     <div className="mb-4 rounded-lg bg-red-100/80 border border-red-300 px-3 py-2">
-                        <p className="text-sm text-red-700">{error}</p>
+                        <p className="text-sm text-red-700">
+                            {error}
+                        </p>
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                {/* ==================================================
+                    FORGOT PASSWORD
+                ================================================== */}
+                {showForgotPassword ? (
+                    <ForgotPassword
+                        onBack={() => {
+                            setShowForgotPassword(false);
+                            setError("");
+                        }}
+                    />
+                ) : (
+                    /* ==================================================
+                       LOGIN
+                    ================================================== */
+                    <>
+                        <form
+                            onSubmit={handleSubmit}
+                            className="space-y-4"
+                        >
 
-                    {/* Email */}
-                    <div className="relative">
-                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                            {/* EMAIL */}
+                            <div className="relative">
 
-                        <input
-                            type="email"
-                            placeholder="Email address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                            required
-                        />
-                    </div>
+                                <FiMail
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                />
 
-                    {/* Password */}
-                    <div className="relative">
-                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                <input
+                                    type="email"
+                                    placeholder="Email address"
+                                    value={email}
+                                    onChange={(e) =>
+                                        setEmail(e.target.value)
+                                    }
+                                    className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                />
 
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                            required
-                        />
-                    </div>
+                            </div>
 
-                    {/* Login Button */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-white font-semibold shadow-md hover:bg-green-700 disabled:opacity-70"
-                    >
-                        {loading ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                Logging in...
-                            </>
-                        ) : (
-                            <>
-                                <FiLogIn size={18} />
-                                Login
-                            </>
-                        )}
-                    </button>
-                </form>
+                            {/* PASSWORD */}
+                            <div className="relative">
 
-                {/* Footer */}
-                <p className="text-center text-sm text-white/90 mt-5">
-                    Don't have an account?{" "}
-                    <Link
-                        to="/signup"
-                        className="font-semibold text-green-200 hover:text-white hover:underline"
-                    >
-                        Create Account
-                    </Link>
-                </p>
+                                <FiLock
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                />
+
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    className="w-full rounded-xl border border-white/30 bg-white/70 pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                />
+
+                            </div>
+
+                            {/* LOGIN BUTTON */}
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-white font-semibold shadow-md hover:bg-green-700 disabled:opacity-70 transition"
+                            >
+                                {loading ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+
+                                        Logging in...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiLogIn size={18} />
+
+                                        Login
+                                    </>
+                                )}
+                            </button>
+
+                        </form>
+
+                        {/* =========================
+                            FORGOT PASSWORD BUTTON
+                        ========================= */}
+                        <div className="text-center mt-4">
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowForgotPassword(true);
+                                    setError("");
+                                }}
+                                className="text-green-200 text-sm font-medium hover:underline"
+                            >
+                                Forgot Password?
+                            </button>
+
+                        </div>
+                    </>
+                )}
+
+                {/* =========================
+                    FOOTER
+                ========================= */}
+                {!showForgotPassword && (
+                    <p className="text-center text-sm text-white/90 mt-5">
+
+                        Don't have an account?{" "}
+
+                        <Link
+                            to="/signup"
+                            className="font-semibold text-green-200 hover:text-white hover:underline"
+                        >
+                            Create Account
+                        </Link>
+
+                    </p>
+                )}
+
             </div>
         </div>
     );

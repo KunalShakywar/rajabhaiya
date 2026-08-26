@@ -16,6 +16,8 @@ import { useAuth } from "./context/AuthContext";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PendingUsers from "./pages/admin/pendingUsers";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
   const { loading, isAdmin } = useAuth();
@@ -30,6 +32,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin */}
         <Route element={<ProtectedRoute isAdmin={isAdmin} />}>
